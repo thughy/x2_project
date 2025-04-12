@@ -19,6 +19,9 @@ func _ready():
 	
 	print("游戏场景初始化开始")
 	
+	# 强制重置所有游戏状态，确保每次都是全新的游戏体验
+	force_reset_all_game_state()
+	
 	# 检查玩家角色设置
 	var player_char = game_state.get_player_character()
 	if player_char == null:
@@ -53,7 +56,7 @@ func _ready():
 	_force_init_systems()
 	
 	# Start the first dialogue based on player character
-	# 尝试加载角色特定的引导对话
+	# 必须使用角色特定的对话，而不是默认对话
 	var character_specific_dialogue = "chapter1_intro_" + player_char
 	
 	# 添加调试信息
@@ -71,14 +74,118 @@ func _ready():
 		print("[游戏场景] 找到角色特定对话，使用:", character_specific_dialogue)
 		var success = dialogue_scene_controller.start_dialogue(character_specific_dialogue)
 		if not success:
-			print("[游戏场景] 启动角色特定对话失败，尝试使用默认对话")
-			dialogue_scene_controller.start_dialogue("chapter1_intro")
+			print("[游戏场景] 启动角色特定对话失败，尝试创建一个")
+			# 如果没有角色特定对话，我们将创建一个
+			create_character_specific_dialogue(player_char)
 	else:
-		print("[游戏场景] 未找到角色特定对话，使用默认对话: chapter1_intro")
-		dialogue_scene_controller.start_dialogue("chapter1_intro")
+		print("[游戏场景] 未找到角色特定对话，创建一个")
+		# 如果没有角色特定对话，我们将创建一个
+		create_character_specific_dialogue(player_char)
 	
 	# Update environment display
 	update_environment_display()
+
+# 创建角色特定的对话
+func create_character_specific_dialogue(character_id):
+	print("[游戏场景] 正在为角色创建特定对话:", character_id)
+	
+	# 获取对话管理器
+	var dialogue_manager = get_node("/root/DialogueManager")
+	
+	# 创建一个新的角色特定对话
+	var dialogue_id = "chapter1_intro_" + character_id
+	
+	# 先检查是否有角色特定的对话脚本
+	var character_script_path = "res://scripts/dialogue/chapter1_" + character_id + ".gd"
+	print("[游戏场景] 检查角色对话脚本:", character_script_path)
+	
+	# 尝试加载角色对话脚本
+	if ResourceLoader.exists(character_script_path):
+		print("[游戏场景] 找到角色对话脚本，尝试加载")
+		var script = load(character_script_path)
+		if script:
+			var instance = script.new()
+			if instance.has_method("create_intro_dialogue"):
+				print("[游戏场景] 使用角色特定脚本创建对话")
+				var dialogue_data = instance.create_intro_dialogue()
+				dialogue_manager.add_dialogue(dialogue_id, dialogue_data)
+				print("[游戏场景] 成功创建角色特定对话:", dialogue_id)
+				
+				# 打印对话结构信息
+				print("[游戏场景] 对话结构:")
+				print("  - 标题:", dialogue_data.get("title", "<无标题>"))
+				print("  - 开始节点:", dialogue_data.get("start_node", "<无开始节点>"))
+				if dialogue_data.has("nodes"):
+					print("  - 节点数量:", dialogue_data["nodes"].size())
+					# 打印前三个节点的说话者
+					var count = 0
+					for node_id in dialogue_data["nodes"]:
+						if count < 3:
+							var node = dialogue_data["nodes"][node_id]
+							print("    - 节点", node_id, ": 说话者 =", node.get("speaker", "<无说话者>"))
+							count += 1
+				
+				# 启动对话
+				dialogue_scene_controller.start_dialogue(dialogue_id)
+				return true
+			else:
+				print("[游戏场景] 角色脚本中没有create_intro_dialogue方法")
+		else:
+			print("[游戏场景] 加载角色脚本失败")
+	else:
+		print("[游戏场景] 未找到角色对话脚本，将基于默认对话创建")
+	
+	# 如果没有找到角色特定脚本或加载失败，基于默认对话创建
+	if dialogue_manager.dialogue_library.has("chapter1_intro"):
+		print("[游戏场景] 基于默认对话创建角色特定对话")
+		var base_dialogue = dialogue_manager.dialogue_library["chapter1_intro"]
+		var new_dialogue = base_dialogue.duplicate(true) # 深度复制
+		
+		# 修改标题和描述
+		new_dialogue["title"] = "第一章：涌现 - " + character_id.capitalize() + "视角"
+		
+		# 遍历所有节点，将narrator替换为角色ID
+		for node_id in new_dialogue["nodes"]:
+			var node = new_dialogue["nodes"][node_id]
+			if node.has("speaker") and node["speaker"] == "narrator":
+				node["speaker"] = character_id
+				# 添加情绪
+				if not node.has("emotion"):
+					node["emotion"] = "neutral"
+				
+			# 修改文本，使其更加个人化
+			if node.has("text") and node["speaker"] == character_id:
+				# 将第三人称描述转换为第一人称
+				var text = node["text"]
+				text = text.replace("研究团队", "我们团队")
+				text = text.replace("他们", "我们")
+				text = text.replace("研究员们", "我们")
+				text = text.replace("科学家们", "我们科学家")
+				
+				# 处理特定角色的第三人称描述
+				if character_id == "erika":
+					text = text.replace("艾丽卡博士", "我")
+					text = text.replace("艾丽卡", "我")
+					text = text.replace("她的", "我的")
+					text = text.replace("她", "我")
+				elif character_id == "neil":
+					text = text.replace("尼尔教授", "我")
+					text = text.replace("尼尔", "我")
+					text = text.replace("他的", "我的")
+					text = text.replace("他", "我")
+				
+				node["text"] = text
+		
+		# 添加到对话库
+		dialogue_manager.add_dialogue(dialogue_id, new_dialogue)
+		print("[游戏场景] 成功创建基于默认对话的角色特定对话:", dialogue_id)
+		
+		# 启动对话
+		dialogue_scene_controller.start_dialogue(dialogue_id)
+		return true
+	else:
+		print("[游戏场景] 错误：未找到基础对话'chapter1_intro'")
+		return false
 	
 	print("游戏场景初始化完成")
 
@@ -280,6 +387,37 @@ func validate_resources():
 	validate_backgrounds()
 	
 	print("资源验证完成")
+
+# 强制重置所有游戏状态
+func force_reset_all_game_state():
+	print("[游戏场景] 强制重置所有游戏状态...")
+	
+	# 1. 重置游戏状态
+	game_state.reset_game_state()
+	
+	# 2. 重置对话管理器
+	var dialogue_manager = get_node("/root/DialogueManager")
+	dialogue_manager.reset_dialogue_history()
+	
+	# 3. 重置情感系统
+	var emotion_system = get_node("/root/EmotionSystem")
+	emotion_system.reset_emotions()
+	
+	# 4. 重置关系系统
+	var relationship_system = get_node("/root/RelationshipSystem")
+	relationship_system.reset_relationships()
+	
+	# 5. 重置环境系统
+	environment_system.reset_environment()
+	
+	# 6. 重置所有故事标志
+	game_state.reset_all_story_flags()
+	
+	# 7. 确保对话场景控制器也被重置
+	if dialogue_scene_controller:
+		dialogue_scene_controller.reset_controller()
+	
+	print("[游戏场景] 所有游戏状态已重置，确保完整对话体验")
 
 # 验证角色肖像
 func validate_character_portraits():

@@ -183,3 +183,41 @@ func load_game(slot_name="quicksave"):
 			return true
 	
 	return false
+
+# 重置游戏状态
+func reset_game_state():
+	print("[游戏状态] 重置游戏状态...")
+	
+	# 保留玩家角色选择，但重置其他所有状态
+	var current_player = player_character
+	
+	# 重置章节和场景
+	current_chapter = 1
+	current_scene = "chapter1_intro"
+	
+	# 重置所有故事标志
+	reset_all_story_flags()
+	
+	print("[游戏状态] 游戏状态已重置，玩家角色保持为:", current_player)
+	return true
+
+# 重置所有故事标志
+func reset_all_story_flags():
+	print("[游戏状态] 重置所有故事标志...")
+	
+	# 清空所有故事标志
+	story_flags.clear()
+	
+	# 设置初始标志，确保游戏从头开始
+	story_flags["game_started"] = true
+	story_flags["intro_completed"] = false
+	story_flags["chapter1_started"] = true
+	story_flags["chapter1_completed"] = false
+	
+	# 重要：确保没有跳过对话的标志
+	story_flags["skip_intro"] = false
+	story_flags["quick_start"] = false
+	story_flags["debug_mode"] = false
+	
+	print("[游戏状态] 所有故事标志已重置，设置为初始状态")
+	return true

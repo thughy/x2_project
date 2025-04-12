@@ -94,6 +94,26 @@ signal environment_changed(old_env, new_env)
 func _ready():
 	pass
 
+# 重置环境系统到默认状态
+func reset_environment():
+	print("[环境系统] 重置环境系统到默认状态...")
+	
+	# 保存当前环境以便发送信号
+	var old_env = current_environment.duplicate()
+	
+	# 重置为默认环境
+	current_environment = {
+		"scene_type": SceneType.RESEARCH,
+		"weather": Weather.CLEAR,
+		"time": TimeOfDay.MORNING,
+		"temperature": Temperature.MILD
+	}
+	
+	# 发送环境变化信号
+	emit_signal("environment_changed", old_env, current_environment)
+	
+	print("[环境系统] 环境系统已重置为默认状态")
+
 # Get the current scene type
 func get_scene_type():
 	return current_environment["scene_type"]

@@ -359,7 +359,9 @@ func create_chapter1_dialogue():
 				"text": "Let's move to the next phase of testing. I want to explore how these different consciousness models approach collaborative problem-solving.",
 				"speaker": "neil",
 				"emotion": "determined",
-				"scene_transition": "research_lab"
+				"flags": {
+					"neil_goto_lab": true
+				}
 			}
 		}
 	}

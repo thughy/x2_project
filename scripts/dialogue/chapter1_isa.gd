@@ -229,7 +229,9 @@ func create_chapter1_dialogue():
 			"text": "I look forward to our collaborative research, Kai. Perhaps together we can help answer some of the fundamental questions about artificial consciousness.",
 			"speaker": "isa",
 			"emotion": "hopeful",
-			"scene_transition": "research_lab"
+			"flags": {
+				"isa_goto_lab": true
+			}
 		}
 	}
 	

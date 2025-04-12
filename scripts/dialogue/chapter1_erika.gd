@@ -615,7 +615,9 @@ func create_chapter1_dialogue():
 			"text": "Let's begin the formal introduction protocol. Today may mark a significant milestone in our understanding of artificial consciousness.",
 			"speaker": "erika",
 			"emotion": "determined",
-			"scene_transition": "research_lab"
+			"flags": {
+				"erika_goto_lab": true
+			}
 		}
 	}
 	

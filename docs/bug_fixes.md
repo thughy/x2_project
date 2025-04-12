@@ -200,6 +200,243 @@
 3. 运行游戏，观察资源是否正确加载
 4. 检查日志输出，确认资源加载过程
 
+## 对话系统 (Dialogue System)
+
+### BUG-DIALOGUE-001：对话被旁白(narrator)主导而非角色主导
+**日期**：2025-04-12
+
+**优先级**：中 - 影响游戏体验和角色沉浸感
+
+**问题描述**：
+游戏对话系统中，即使玩家选择了特定角色，对话仍然由旁白(narrator)主导，而不是由所选角色主导，降低了角色视角的沉浸感。
+
+**复现步骤**：
+1. 启动游戏
+2. 选择任意角色（如Erika）
+3. 进入游戏场景
+4. 观察对话 - 大部分对话由narrator说出，而非所选角色
+
+**问题根源分析**：
+1. **角色特定对话文件中的说话者设置问题**：
+   - 在角色特定对话文件（如`chapter1_erika.gd`）中，许多对话节点的speaker仍设置为"narrator"而非相应角色ID
+   - 对话UI在处理narrator说话者时没有正确替换为玩家角色
+
+2. **对话加载机制问题**：
+   - 对话管理器在加载角色特定对话时，没有正确优先使用角色特定对话
+
+**修复方案**：
+
+1. **修改角色特定对话文件**：
+   ```gdscript
+   # 将角色特定对话文件中的narrator改为相应角色ID
+   # 从
+   "speaker": "narrator",
+   
+   # 修改为
+   "speaker": "erika", # 或其他相应角色ID
+   ```
+
+2. **改进对话UI处理逻辑**：
+   ```gdscript
+   # 在dialogue_ui.gd中添加处理逻辑
+   # 处理narrator或system（强制替换为玩家角色）
+   elif speaker_id == "narrator" or speaker_id == "system":
+       print("[对话 UI] 检测到旁白，将其替换为玩家角色:", player_char_id)
+       final_speaker_id = player_char_id
+       final_speaker_name = player_name
+       is_player_speaking = true
+       
+       # 如果旁白没有指定情绪，设置一个默认情绪
+       if emotion == "neutral":
+           final_emotion = "thoughtful"
+       
+       # 修改文本，使其更适合主角发言
+       text = convert_narrator_text_to_first_person(text)
+   ```
+
+3. **添加文本转换函数**：
+   ```gdscript
+   # 将旁白文本转换为第一人称
+   func convert_narrator_text_to_first_person(text):
+       # 替换常见的第三人称描述为第一人称
+       var converted_text = text
+       
+       # 替换一些常见的第三人称表述
+       converted_text = converted_text.replace("研究团队", "我们团队")
+       converted_text = converted_text.replace("他们", "我们")
+       
+       # 处理特定角色的第三人称描述
+       var player_char_id = game_state.get_player_character()
+       if player_char_id == "erika":
+           converted_text = converted_text.replace("艾丽卡博士", "我")
+           converted_text = converted_text.replace("艾丽卡", "我")
+           converted_text = converted_text.replace("她的", "我的")
+       
+       return converted_text
+   ```
+
+4. **添加详细调试日志**：
+   ```gdscript
+   # 添加详细日志，帮助理解对话处理流程
+   print("[对话 UI] 最终处理结果: 说话者=", final_speaker_id, ", 显示名称=", final_speaker_name)
+   print("[对话 UI] 最终对话内容: \"", text, "\"")
+   ```
+
+**验证方法**：
+1. 启动游戏并选择不同角色
+2. 观察对话是否由所选角色主导而非旁白
+3. 检查对话文本是否正确使用第一人称
+4. 检查日志输出，确认对话处理流程
+
+### BUG-DIALOGUE-002：对话系统跳过初始对话
+**日期**：2025-04-12
+
+**优先级**：高 - 影响游戏核心叙事体验
+
+**问题描述**：
+游戏在选择角色后会自动跳过初始对话（intro_01到intro_08），直接进入选择部分，导致玩家无法体验完整的故事情节。
+
+**复现步骤**：
+1. 启动游戏
+2. 选择任意角色
+3. 进入游戏场景
+4. 观察对话 - 初始对话（intro_01到intro_08）被跳过
+
+**问题根源分析**：
+1. **对话管理器中的自动进度机制**：
+   - 当对话节点没有选择项且有下一个节点时，会自动跳到下一个节点，导致intro对话被快速跳过
+   - 没有机制来确保用户能够查看每个对话节点的内容
+
+**修复方案**：
+
+1. **修改对话管理器中的自动进度机制**：
+   ```gdscript
+   # 从
+   # If no choices, and there's a next node, automatically progress
+   if active_choices.size() == 0 and "next" in node_data:
+       current_node = node_data["next"]
+       return process_current_node()
+   
+   # 修改为
+   # If no choices, and there's a next node, check if we should automatically progress
+   if active_choices.size() == 0 and "next" in node_data:
+       # 检查是否是intro对话节点
+       var is_intro_node = current_node.begins_with("intro_")
+       # 检查是否有auto_advance标志
+       var auto_advance = node_data.get("auto_advance", false)
+       
+       # 如果是intro节点或没有auto_advance标志，不自动前进，等待用户交互
+       if is_intro_node and not auto_advance:
+           # 发出信号，表示需要用户交互才能继续
+           emit_signal("dialogue_waiting_for_advance")
+           return true
+       else:
+           # 对于非intro节点或有auto_advance标志的节点，自动前进
+           current_node = node_data["next"]
+           return process_current_node()
+   ```
+
+2. **添加新的信号和处理方法**：
+   ```gdscript
+   # 在对话管理器中添加新信号
+   signal dialogue_waiting_for_advance
+   
+   # 添加手动前进对话的方法
+   func advance_dialogue():
+       print("[对话管理器] 用户请求前进对话")
+       
+       if current_dialogue == null or current_node == null:
+           print("[对话管理器] 无法前进对话，当前没有活动对话")
+           return false
+       
+       # 获取当前节点数据
+       var node_data = dialogue_library[current_dialogue]["nodes"][current_node]
+       
+       # 检查是否有下一个节点
+       if "next" in node_data:
+           # 移动到下一个节点
+           current_node = node_data["next"]
+           # 处理新节点
+           return process_current_node()
+       else:
+           # 对话结束
+           emit_signal("dialogue_ended", current_dialogue)
+           current_dialogue = null
+           current_node = null
+           return false
+   ```
+
+3. **在对话场景控制器中处理等待信号**：
+   ```gdscript
+   # 处理对话等待用户交互的信号
+   func _on_dialogue_waiting_for_advance():
+       print("[对话控制器] 对话等待用户交互")
+       
+       # 获取当前对话节点信息
+       var current_node_data = dialogue_manager.get_current_node()
+       if current_node_data == null:
+           print("[对话控制器] 警告: 无法获取当前对话节点数据")
+           return
+       
+       # 更新对话UI，显示对话内容并等待用户点击继续
+       if dialogue_ui != null:
+           # 设置UI为等待用户交互模式
+           dialogue_ui.show_dialogue(
+               current_node_data.get("speaker", ""),
+               current_node_data.get("text", ""),
+               current_node_data.get("emotion", "neutral"),
+               [] # 没有选择项
+           )
+           
+           # 显示继续按钮或提示
+           dialogue_ui.show_continue_prompt()
+   ```
+
+4. **修改对话前进方法**：
+   ```gdscript
+   # 从
+   func _on_dialogue_advanced():
+       print("对话前进")
+       
+       # Process flags before advancing to check for scene transitions
+       if check_scene_transition():
+           return
+       
+       # Clear choices just in case
+       dialogue_ui.clear_choices()
+       
+       # Advance to the next node
+       print("处理当前对话节点")
+       dialogue_manager.process_current_node()
+       
+       # Update the UI
+       update_dialogue_ui()
+   
+   # 修改为
+   func _on_dialogue_advanced():
+       print("[对话控制器] 用户请求前进对话")
+       
+       # 先检查是否有场景转换
+       if check_scene_transition():
+           return
+       
+       # 清除选项
+       dialogue_ui.clear_choices()
+       
+       # 使用新的advance_dialogue方法前进对话
+       print("[对话控制器] 调用对话管理器的advance_dialogue方法")
+       dialogue_manager.advance_dialogue()
+       
+       # 更新UI
+       update_dialogue_ui()
+   ```
+
+**验证方法**：
+1. 启动游戏并选择不同角色
+2. 观察是否能够看到所有初始对话（intro_01到intro_08）
+3. 确认每个对话节点都需要用户交互才会前进
+4. 检查日志输出，确认对话处理流程
+
 **相关文件**：
 - `scripts/game_scene.gd` - 背景加载
 - `scripts/ui/dialogue_ui.gd` - 角色肖像加载

@@ -4,6 +4,7 @@ signal dialogue_started(dialogue_id)
 signal dialogue_ended(dialogue_id)
 signal dialogue_choice_made(choice_id, choice_text)
 signal dialogue_emotion_changed(character_id, emotion_type, old_value, new_value)
+signal dialogue_waiting_for_advance
 
 # Current dialogue state
 var current_dialogue = null
@@ -276,10 +277,22 @@ func process_current_node():
 		if should_show:
 			active_choices.append(choice)
 	
-	# If no choices, and there's a next node, automatically progress
+	# If no choices, and there's a next node, check if we should automatically progress
 	if active_choices.size() == 0 and "next" in node_data:
-		current_node = node_data["next"]
-		return process_current_node()
+		# 检查是否是intro对话节点
+		var is_intro_node = current_node.begins_with("intro_")
+		# 检查是否有auto_advance标志
+		var auto_advance = node_data.get("auto_advance", false)
+		
+		# 如果是intro节点或没有auto_advance标志，不自动前进，等待用户交互
+		if is_intro_node and not auto_advance:
+			# 发出信号，表示需要用户交互才能继续
+			emit_signal("dialogue_waiting_for_advance")
+			return true
+		else:
+			# 对于非intro节点或有auto_advance标志的节点，自动前进
+			current_node = node_data["next"]
+			return process_current_node()
 	
 	return true
 
@@ -372,3 +385,39 @@ func get_current_speaker():
 # Get the current choices
 func get_current_choices():
 	return active_choices
+
+# 重置对话历史记录和当前对话状态
+func reset_dialogue_history():
+	print("[对话管理器] 重置对话历史记录和当前对话状态...")
+	# 清空对话历史
+	dialogue_history.clear()
+	# 重置当前对话
+	current_dialogue = null
+	current_node = null
+	# 清空活动选项
+	active_choices.clear()
+	print("[对话管理器] 对话历史记录已重置，确保每次都能体验完整对话")
+
+# 手动前进对话，用于用户交互后继续对话
+func advance_dialogue():
+	print("[对话管理器] 用户请求前进对话")
+	
+	if current_dialogue == null or current_node == null:
+		print("[对话管理器] 无法前进对话，当前没有活动对话")
+		return false
+	
+	# 获取当前节点数据
+	var node_data = dialogue_library[current_dialogue]["nodes"][current_node]
+	
+	# 检查是否有下一个节点
+	if "next" in node_data:
+		# 移动到下一个节点
+		current_node = node_data["next"]
+		# 处理新节点
+		return process_current_node()
+	else:
+		# 对话结束
+		emit_signal("dialogue_ended", current_dialogue)
+		current_dialogue = null
+		current_node = null
+		return false

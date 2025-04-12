@@ -58,46 +58,96 @@ func _precheck_character_portraits():
 				print("找到肖像: ", path)
 
 func _input(event):
+	# 调试信息 - 首先打印所有输入事件以便调试
+	if event is InputEventKey and event.pressed:
+		print("[对话 UI] 按键输入: ", event.keycode, ", 扫描码: ", event.physical_keycode)
+	
+	# 如果是鼠标点击，也打印调试信息
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		print("[对话 UI] 鼠标点击位置: ", event.position)
+	
 	# 如果对话UI可见，且没有选择项显示，则允许通过点击或空格键前进对话
 	if visible and choices_container.get_child_count() == 0:
-		if event.is_action_pressed("ui_continue"):
+		# 检查空格键或回车键
+		if event.is_action_pressed("ui_continue") or event.is_action_pressed("ui_accept"):
+			print("[对话 UI] 发送对话前进信号")
 			emit_signal("dialogue_advanced")
-			
+			return
+		
+		# 检查鼠标点击
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			# 确保点击在对话面板区域内
+			if $DialoguePanel.get_global_rect().has_point(event.position):
+				print("[对话 UI] 鼠标点击对话面板，发送对话前进信号")
+				emit_signal("dialogue_advanced")
+				return
+	
 	# 调试信息
 	if event.is_action_pressed("ui_continue"):
-		print("UI continue action pressed. UI visible: ", visible, ", Choices count: ", choices_container.get_child_count())
+		print("[对话 UI] UI continue action pressed. UI visible: ", visible, ", Choices count: ", choices_container.get_child_count())
 
 func display_dialogue(speaker_id, text, emotion="neutral"):
 	# 调试信息
-	print("[对话 UI] 显示对话: 说话者=", speaker_id, ", 情绪=", emotion, ", 玩家角色=", game_state.get_player_character())
+	print("[对话 UI] 显示对话: 原始说话者=", speaker_id, ", 情绪=", emotion, ", 玩家角色=", game_state.get_player_character())
 	
 	# 打印当前对话的内容
-	print("[对话 UI] 对话内容: \"", text, "\"")
+	print("[对话 UI] 原始对话内容: \"", text, "\"")
 	
-	# Replace [player_character] with the actual character name
+	# 获取玩家角色ID和名称
 	var player_char_id = game_state.get_player_character()
 	if player_char_id == null:
-		print("严重错误：玩家角色未设置！")
+		print("[对话 UI] 严重错误：玩家角色未设置！")
 		player_char_id = "erika" # 为防止崩溃强制设置默认值
 	
 	var player_name = game_state.get_character_name(player_char_id)
+	
+	# 替换文本中的[player_character]标记
 	text = text.replace("[player_character]", player_name)
 	
-	is_player_speaking = (speaker_id == "player")
-	current_speaker_id = speaker_id
+	# 处理特殊说话者
+	var final_speaker_id = speaker_id
+	var final_speaker_name = ""
+	var final_emotion = emotion
 	
-	# Handle special speakers
-	# 注意：在dialogue_scene_controller.gd中，我们已经将"player"替换为实际的玩家角色ID
-	# 这里为了兼容性，保留了对"player"的处理
+	# 第1步：处理player标记
 	if speaker_id == "player":
-		print("正在说话的是玩家角色(从旧代码中调用):", player_char_id, " - ", player_name)
-		name_label.text = player_name
-		speaker_id = player_char_id
+		print("[对话 UI] 检测到player标记，替换为玩家角色:", player_char_id)
+		final_speaker_id = player_char_id
+		final_speaker_name = player_name
+		is_player_speaking = true
+	
+	# 第2步：处理narrator或system（强制替换为玩家角色）
 	elif speaker_id == "narrator" or speaker_id == "system":
-		name_label.text = speaker_id.capitalize()
+		print("[对话 UI] 检测到旁白，将其替换为玩家角色:", player_char_id)
+		final_speaker_id = player_char_id
+		final_speaker_name = player_name
+		is_player_speaking = true
 		
-		# Try to load narrator or system icon
-		var icon_path = "res://assets/ui/" + speaker_id + "_icon.png"
+		# 如果旁白没有指定情绪，设置一个默认情绪
+		if emotion == "neutral":
+			final_emotion = "thoughtful"
+		
+		# 修改文本，使其更适合主角发言
+		text = convert_narrator_text_to_first_person(text)
+	
+	# 第3步：处理其他角色
+	else:
+		final_speaker_name = game_state.get_character_name(speaker_id)
+		if final_speaker_name.is_empty():
+			final_speaker_name = speaker_id.capitalize()
+		is_player_speaking = (speaker_id == player_char_id)
+	
+	# 更新UI
+	name_label.text = final_speaker_name
+	current_speaker_id = final_speaker_id
+	
+	print("[对话 UI] 最终处理结果: 说话者=", final_speaker_id, ", 显示名称=", final_speaker_name, ", 情绪=", final_emotion)
+	print("[对话 UI] 最终对话内容: \"", text, "\"")
+	
+	# 处理特殊说话者（旁白或系统）
+	if final_speaker_id == "narrator" or final_speaker_id == "system":
+		# Try to load appropriate icon
+		var icon_path = "res://assets/ui/" + final_speaker_id + "_icon.png"
 		var icon_loaded = false
 		
 		if FileAccess.file_exists(icon_path.trim_prefix("res://")):
@@ -105,13 +155,13 @@ func display_dialogue(speaker_id, text, emotion="neutral"):
 			if texture:
 				portrait.texture = texture
 				icon_loaded = true
-				print("成功加载", speaker_id, "图标:", icon_path)
+				print("成功加载", final_speaker_id, "图标:", icon_path)
 		
 		# If icon loading fails, create a custom placeholder
 		if not icon_loaded:
-			var color = Color(0.6, 0.6, 0.8) if speaker_id == "narrator" else Color(0.8, 0.6, 0.3) # Purple for narrator, orange for system
+			var color = Color(0.6, 0.6, 0.8) if final_speaker_id == "narrator" else Color(0.8, 0.6, 0.3) # Purple for narrator, orange for system
 			portrait.texture = create_placeholder_texture(color)
-			print("为", speaker_id, "创建自定义图标")
+			print("为", final_speaker_id, "创建自定义图标")
 		
 		# 隐藏情感和关系面板，因为叙述者/系统没有情感和关系
 		emotion_display.visible = false
@@ -121,24 +171,25 @@ func display_dialogue(speaker_id, text, emotion="neutral"):
 		show()
 		return
 	else:
-		if game_state.character_data.has(speaker_id):
-			name_label.text = game_state.get_character_name(speaker_id)
+		# 处理普通角色
+		if game_state.character_data.has(final_speaker_id):
+			name_label.text = game_state.get_character_name(final_speaker_id)
 		else:
-			print("警告：未知角色ID:", speaker_id)
-			name_label.text = speaker_id
+			print("警告：未知角色ID:", final_speaker_id)
+			name_label.text = final_speaker_id
 	
-	# 加载肖像
-	load_character_portrait(speaker_id, emotion)
+	# 加载肖像 - 使用最终处理后的说话者ID
+	load_character_portrait(final_speaker_id, final_emotion)
 	
 	# Set text
 	text_label.text = text
 	
 	# Update emotion display - 总是尝试显示
-	update_emotion_display(speaker_id)
+	update_emotion_display(final_speaker_id)
 	
 	# Update relationship display if applicable - 总是尝试显示
-	if player_char_id != "" and speaker_id != "narrator" and speaker_id != "system" and player_char_id != speaker_id:
-		update_relationship_display(player_char_id, speaker_id)
+	if player_char_id != "" and final_speaker_id != "narrator" and final_speaker_id != "system" and player_char_id != final_speaker_id:
+		update_relationship_display(player_char_id, final_speaker_id)
 	else:
 		relationship_display.visible = false
 	
@@ -356,6 +407,76 @@ func _debug_force_show_panels():
 func _on_dialogue_ended(dialogue_id):
 	hide()
 
+# 将旁白文本转换为第一人称
+func convert_narrator_text_to_first_person(text):
+	# 替换常见的第三人称描述为第一人称
+	var converted_text = text
+	
+	# 替换一些常见的第三人称表述
+	converted_text = converted_text.replace("研究团队", "我们团队")
+	converted_text = converted_text.replace("他们", "我们")
+	converted_text = converted_text.replace("研究员们", "我们")
+	converted_text = converted_text.replace("科学家们", "我们科学家")
+	
+	# 处理特定角色的第三人称描述
+	var player_char_id = game_state.get_player_character()
+	if player_char_id == "erika":
+		converted_text = converted_text.replace("艾丽卡博士", "我")
+		converted_text = converted_text.replace("艾丽卡", "我")
+		converted_text = converted_text.replace("她的", "我的")
+		converted_text = converted_text.replace("她", "我")
+	elif player_char_id == "neil":
+		converted_text = converted_text.replace("尼尔教授", "我")
+		converted_text = converted_text.replace("尼尔", "我")
+		converted_text = converted_text.replace("他的", "我的")
+		converted_text = converted_text.replace("他", "我")
+	
+	# 如果文本没有变化，尝试更通用的转换
+	if converted_text == text:
+		# 添加一个通用的第一人称开头
+		converted_text = "我看到" + text.substr(0, 1).to_lower() + text.substr(1)
+	
+	print("[对话 UI] 旁白文本转换: \"", text, "\" -> \"", converted_text, "\"")
+	return converted_text
+
 func _on_choice_button_pressed(choice_index):
 	emit_signal("choice_selected", choice_index)
 	clear_choices() 
+
+# 重置对话UI到初始状态
+func reset_ui():
+	print("[对话UI] 重置对话UI到初始状态...")
+	
+	# 清除当前对话内容
+	name_label.text = ""
+	text_label.text = ""
+	current_speaker_id = ""
+	is_player_speaking = false
+	
+	# 清除选项
+	clear_choices()
+	
+	# 隐藏所有面板
+	$ChoicesPanel.visible = false
+	$EmotionPanel.visible = false
+	$RelationshipPanel.visible = false
+	continue_indicator.visible = false
+	
+	# 隐藏整个对话UI
+	hide()
+	
+	print("[对话UI] 对话UI已重置")
+
+# 清除当前对话内容
+func clear_dialogue():
+	print("[对话UI] 清除当前对话内容")
+	name_label.text = ""
+	text_label.text = ""
+	continue_indicator.visible = false
+
+# 显示继续提示，提示用户点击继续
+func show_continue_prompt():
+	print("[对话UI] 显示继续提示")
+	continue_indicator.visible = true
+	# 确保对话面板可见
+	show()
