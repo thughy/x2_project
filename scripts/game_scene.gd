@@ -18,6 +18,11 @@ func _ready():
 	menu_button.connect("pressed", Callable(self, "_on_menu_button_pressed"))
 	environment_system.connect("environment_changed", Callable(self, "_on_environment_changed"))
 	
+	# 确保玩家角色已设置，如果未设置则使用默认值
+	if game_state.get_player_character() == null:
+		print("设置默认玩家角色为艾丽卡")
+		game_state.set_player_character("erika")
+	
 	# Set initial environment based on first scene
 	set_initial_environment()
 	

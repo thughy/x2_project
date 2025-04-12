@@ -99,5 +99,7 @@ func display_character_info(character_id):
 func _on_start_button_pressed():
 	if selected_character != null:
 		emit_signal("character_selected", selected_character)
+		print("选择角色:", selected_character)
 		game_state.start_new_game(selected_character)
+		print("开始新游戏，玩家角色设置为:", game_state.get_player_character())
 		get_tree().change_scene_to_file("res://scenes/game_scene.tscn") 

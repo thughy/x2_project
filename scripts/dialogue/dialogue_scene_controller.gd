@@ -33,9 +33,14 @@ func update_dialogue_ui():
 	# Get current dialogue info
 	var speaker = dialogue_manager.get_current_speaker()
 	
+	# Debug output
+	print("当前对话说话者:", speaker)
+	print("当前玩家角色:", game_state.get_player_character())
+	
 	# Special handling for player character
 	if speaker == "player":
 		speaker = "player"  # Keep as "player" to let the UI handle it
+		print("当前说话者是玩家")
 	
 	var text = dialogue_manager.get_current_text()
 	var choices = dialogue_manager.get_current_choices()
@@ -43,16 +48,19 @@ func update_dialogue_ui():
 	
 	if dialogue_manager.current_dialogue != null and dialogue_manager.current_node != null:
 		node_data = dialogue_manager.dialogue_library[dialogue_manager.current_dialogue]["nodes"][dialogue_manager.current_node]
+		print("当前对话ID:", dialogue_manager.current_dialogue, "节点ID:", dialogue_manager.current_node)
 	
 	var emotion = "neutral"
 	if node_data and "emotion" in node_data:
 		emotion = node_data["emotion"]
+		print("情绪状态:", emotion)
 	
 	# Display the dialogue
 	dialogue_ui.display_dialogue(speaker, text, emotion)
 	
 	# If there are choices, display them
 	if choices.size() > 0:
+		print("显示选择项:", choices.size(), "个")
 		dialogue_ui.display_choices(choices)
 	else:
 		# 确保清除之前的选择

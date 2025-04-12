@@ -46,8 +46,16 @@ func _input(event):
 		print("UI continue action pressed. UI visible: ", visible, ", Choices count: ", choices_container.get_child_count())
 
 func display_dialogue(speaker_id, text, emotion="neutral"):
+	# 调试信息
+	print("显示对话: 说话者=", speaker_id, ", 情绪=", emotion, ", 玩家角色=", game_state.get_player_character())
+	
 	# Replace [player_character] with the actual character name
 	var player_char_id = game_state.get_player_character()
+	if player_char_id == null:
+		print("警告：玩家角色未设置！")
+		player_char_id = "erika" # 默认使用艾丽卡
+		game_state.set_player_character(player_char_id)
+	
 	var player_name = game_state.get_character_name(player_char_id)
 	text = text.replace("[player_character]", player_name)
 	
@@ -56,6 +64,7 @@ func display_dialogue(speaker_id, text, emotion="neutral"):
 	
 	# Handle special speakers
 	if speaker_id == "player":
+		print("正在说话的是玩家角色:", player_char_id, " - ", player_name)
 		name_label.text = player_name
 		speaker_id = player_char_id
 	elif speaker_id == "narrator" or speaker_id == "system":
@@ -64,27 +73,44 @@ func display_dialogue(speaker_id, text, emotion="neutral"):
 		var icon_path = "res://assets/ui/narrator_icon.png"
 		if ResourceLoader.exists(icon_path):
 			portrait.texture = load(icon_path)
+			print("加载叙述者图标:", icon_path)
 		else:
 			# Reset texture if resource doesn't exist
 			portrait.texture = null
+			print("警告：叙述者图标未找到:", icon_path)
 		text_label.text = text
 		show()
 		return
 	else:
-		name_label.text = game_state.get_character_name(speaker_id)
+		if game_state.character_data.has(speaker_id):
+			name_label.text = game_state.get_character_name(speaker_id)
+		else:
+			print("警告：未知角色ID:", speaker_id)
+			name_label.text = speaker_id
 	
 	# Set portrait with fallback to null if not found
 	var portrait_path = game_state.get_character_portrait(speaker_id, emotion)
+	print("尝试加载肖像:", portrait_path)
+	
 	if ResourceLoader.exists(portrait_path):
 		portrait.texture = load(portrait_path)
+		print("成功加载肖像:", portrait_path)
 	else:
 		# Try neutral portrait
+		print("找不到情绪肖像,尝试加载中性肖像")
 		portrait_path = game_state.get_character_portrait(speaker_id, "neutral")
 		if ResourceLoader.exists(portrait_path):
 			portrait.texture = load(portrait_path)
+			print("成功加载中性肖像:", portrait_path)
 		else:
-			# If still not found, clear texture
-			portrait.texture = null
+			# If still not found, use a default portrait
+			print("警告：找不到角色肖像,使用默认肖像")
+			portrait_path = "res://assets/characters/_neutral.png"
+			if ResourceLoader.exists(portrait_path):
+				portrait.texture = load(portrait_path)
+			else:
+				# If still not found, clear texture
+				portrait.texture = null
 	
 	# Set text
 	text_label.text = text
@@ -131,15 +157,17 @@ func clear_choices():
 
 func update_emotion_display(character_id):
 	# This function will update the emotion display UI
-	# Implement based on your specific UI design
+	print("更新情感显示 - 角色ID:", character_id)
 	
 	if character_id == "narrator" or character_id == "system":
 		emotion_display.hide()
+		print("隐藏情感面板 - 特殊角色:", character_id)
 		return
 	
 	# Check if character exists in emotion system
 	if not emotion_system.character_emotions.has(character_id):
 		emotion_display.hide()
+		print("隐藏情感面板 - 找不到角色情感数据:", character_id)
 		return
 		
 	var emotions_text = ""
@@ -161,12 +189,16 @@ func update_emotion_display(character_id):
 		emotions_text += "\n复合情绪:\n" + compound_emotions_text
 	
 	emotion_display.get_node("EmotionText").text = emotions_text
+	print("显示情感面板 - 数据更新完成")
 	emotion_display.show()
 
 func update_relationship_display(from_character, to_character):
 	# Check if relationship exists
+	print("更新关系显示 - 从角色:", from_character, "到角色:", to_character)
+	
 	if not relationship_system.relationships.has(from_character) or not relationship_system.relationships[from_character].has(to_character):
 		relationship_display.hide()
+		print("隐藏关系面板 - 找不到关系数据")
 		return
 	
 	var relationship_text = ""
@@ -180,6 +212,7 @@ func update_relationship_display(from_character, to_character):
 		relationship_text += dimension_name + ": " + str(value) + "\n"
 	
 	relationship_display.get_node("RelationshipText").text = relationship_text
+	print("显示关系面板 - 数据更新完成")
 	relationship_display.show()
 
 func _on_dialogue_started(dialogue_id):
