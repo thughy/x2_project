@@ -1,0 +1,61 @@
+[gd_scene load_steps=4 format=3 uid="uid://bo4hna7c7a0jp"]
+
+[ext_resource type="Script" path="res://scripts/game_scene.gd" id="1_y3b5k"]
+[ext_resource type="PackedScene" uid="uid://cmkv58mh7x0nh" path="res://scenes/ui/dialogue_ui.tscn" id="2_5xeex"]
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_scene_controller.gd" id="3_0a27y"]
+
+[node name="GameScene" type="Node"]
+script = ExtResource("1_y3b5k")
+
+[node name="Background" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="EnvironmentDisplay" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -366.0
+offset_top = 20.0
+offset_right = 366.0
+offset_bottom = 70.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 18
+text = "场景：研究空间 - 理性、结构化、目标导向
+时间：早晨，天气：晴朗，温度：温和"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MenuButton" type="Button" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 51.0
+grow_horizontal = 0
+text = "菜单"
+
+[node name="SaveIndicator" type="Label" parent="."]
+visible = false
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -227.0
+offset_top = 52.0
+offset_right = -20.0
+offset_bottom = 78.0
+grow_horizontal = 0
+text = "游戏已保存"
+horizontal_alignment = 2
+
+[node name="DialogueSceneController" type="Node" parent="."]
+script = ExtResource("3_0a27y")
+
+[node name="DialogueUI" parent="DialogueSceneController" instance=ExtResource("2_5xeex")] 

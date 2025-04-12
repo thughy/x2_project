@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3bghg4dpdwat"]
+
+[ext_resource type="Script" path="res://scripts/tools/placeholder_generator.gd" id="1_hl6nr"]
+
+[node name="PlaceholderGenerator" type="Node2D"]
+script = ExtResource("1_hl6nr")
+
+[node name="Instructions" type="Label" parent="."]
+offset_left = 404.0
+offset_top = 310.0
+offset_right = 876.0
+offset_bottom = 410.0
+text = "Press SPACE to generate all placeholder images
+This will create images in the assets directory."
+horizontal_alignment = 1
+vertical_alignment = 1 

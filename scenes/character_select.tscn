@@ -1,0 +1,179 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctrxglfxg8uj6"]
+
+[ext_resource type="Script" path="res://scripts/ui/character_select.gd" id="1_y3xqh"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_y3xqh")
+
+[node name="Background" type="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0588235, 0.0980392, 0.156863, 1)
+
+[node name="Title" type="Label"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -233.0
+offset_top = 32.0
+offset_right = 233.0
+offset_bottom = 78.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 32
+text = "选择你的角色"
+horizontal_alignment = 1
+
+[node name="CharacterGrid" type="GridContainer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -456.0
+offset_top = -145.0
+offset_right = 456.0
+offset_bottom = 55.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/h_separation = 50
+columns = 4
+
+[node name="IsaButton" type="Button"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+flat = true
+
+[node name="Label" type="Label"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.5
+offset_top = -26.0
+offset_right = 22.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "伊莎 (AI)"
+horizontal_alignment = 1
+
+[node name="ErikaButton" type="Button"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+flat = true
+
+[node name="Label" type="Label"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.5
+offset_top = -26.0
+offset_right = 49.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "艾丽卡 博士 (人类)"
+horizontal_alignment = 1
+
+[node name="NeilButton" type="Button"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+flat = true
+
+[node name="Label" type="Label"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -49.5
+offset_top = -26.0
+offset_right = 49.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "尼尔 教授 (人类)"
+horizontal_alignment = 1
+
+[node name="KaiButton" type="Button"]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 2
+flat = true
+
+[node name="Label" type="Label"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -22.5
+offset_top = -26.0
+offset_right = 22.5
+grow_horizontal = 2
+grow_vertical = 0
+text = "卡伊 (AI)"
+horizontal_alignment = 1
+
+[node name="CharacterInfo" type="RichTextLabel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -456.0
+offset_top = 80.0
+offset_right = 456.0
+offset_bottom = 230.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "选择一个角色开始游戏"
+
+[node name="StartButton" type="Button"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -74.0
+offset_top = -105.0
+offset_right = 74.0
+offset_bottom = -55.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 24
+text = "开始游戏"
+
+[node name="BackButton" type="Button"]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -122.0
+offset_top = -55.0
+offset_right = -24.0
+offset_bottom = -24.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "返回" 

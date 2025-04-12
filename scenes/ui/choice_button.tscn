@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://c56ptv74yvgga"]
+
+[ext_resource type="Script" path="res://scripts/ui/choice_button.gd" id="1_t1nfs"]
+
+[node name="ChoiceButton" type="Button"]
+custom_minimum_size = Vector2(600, 0)
+offset_right = 600.0
+offset_bottom = 31.0
+text = "这是一个选择项"
+alignment = 0
+script = ExtResource("1_t1nfs") 
