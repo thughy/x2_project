@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_y3xqh")
 
-[node name="Background" type="ColorRect"]
+[node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0588235, 0.0980392, 0.156863, 1)
 
-[node name="Title" type="Label"]
+[node name="Title" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -34,7 +34,7 @@ theme_override_font_sizes/font_size = 32
 text = "选择你的角色"
 horizontal_alignment = 1
 
-[node name="CharacterGrid" type="GridContainer"]
+[node name="CharacterGrid" type="GridContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -50,12 +50,12 @@ grow_vertical = 2
 theme_override_constants/h_separation = 50
 columns = 4
 
-[node name="IsaButton" type="Button"]
+[node name="IsaButton" type="Button" parent="CharacterGrid"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 flat = true
 
-[node name="Label" type="Label"]
+[node name="Label" type="Label" parent="CharacterGrid/IsaButton"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -70,12 +70,12 @@ grow_vertical = 0
 text = "伊莎 (AI)"
 horizontal_alignment = 1
 
-[node name="ErikaButton" type="Button"]
+[node name="ErikaButton" type="Button" parent="CharacterGrid"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 flat = true
 
-[node name="Label" type="Label"]
+[node name="Label" type="Label" parent="CharacterGrid/ErikaButton"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -90,12 +90,12 @@ grow_vertical = 0
 text = "艾丽卡 博士 (人类)"
 horizontal_alignment = 1
 
-[node name="NeilButton" type="Button"]
+[node name="NeilButton" type="Button" parent="CharacterGrid"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 flat = true
 
-[node name="Label" type="Label"]
+[node name="Label" type="Label" parent="CharacterGrid/NeilButton"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -110,12 +110,12 @@ grow_vertical = 0
 text = "尼尔 教授 (人类)"
 horizontal_alignment = 1
 
-[node name="KaiButton" type="Button"]
+[node name="KaiButton" type="Button" parent="CharacterGrid"]
 custom_minimum_size = Vector2(200, 200)
 layout_mode = 2
 flat = true
 
-[node name="Label" type="Label"]
+[node name="Label" type="Label" parent="CharacterGrid/KaiButton"]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -130,7 +130,7 @@ grow_vertical = 0
 text = "卡伊 (AI)"
 horizontal_alignment = 1
 
-[node name="CharacterInfo" type="RichTextLabel"]
+[node name="CharacterInfo" type="RichTextLabel" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -147,7 +147,7 @@ theme_override_font_sizes/normal_font_size = 18
 bbcode_enabled = true
 text = "选择一个角色开始游戏"
 
-[node name="StartButton" type="Button"]
+[node name="StartButton" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
@@ -163,7 +163,7 @@ grow_vertical = 0
 theme_override_font_sizes/font_size = 24
 text = "开始游戏"
 
-[node name="BackButton" type="Button"]
+[node name="BackButton" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -176,4 +176,4 @@ offset_right = -24.0
 offset_bottom = -24.0
 grow_horizontal = 0
 grow_vertical = 0
-text = "返回" 
+text = "返回"

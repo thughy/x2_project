@@ -69,7 +69,10 @@ func _input(event):
 
 func display_dialogue(speaker_id, text, emotion="neutral"):
 	# 调试信息
-	print("显示对话: 说话者=", speaker_id, ", 情绪=", emotion, ", 玩家角色=", game_state.get_player_character())
+	print("[对话 UI] 显示对话: 说话者=", speaker_id, ", 情绪=", emotion, ", 玩家角色=", game_state.get_player_character())
+	
+	# 打印当前对话的内容
+	print("[对话 UI] 对话内容: \"", text, "\"")
 	
 	# Replace [player_character] with the actual character name
 	var player_char_id = game_state.get_player_character()
@@ -84,8 +87,10 @@ func display_dialogue(speaker_id, text, emotion="neutral"):
 	current_speaker_id = speaker_id
 	
 	# Handle special speakers
+	# 注意：在dialogue_scene_controller.gd中，我们已经将"player"替换为实际的玩家角色ID
+	# 这里为了兼容性，保留了对"player"的处理
 	if speaker_id == "player":
-		print("正在说话的是玩家角色:", player_char_id, " - ", player_name)
+		print("正在说话的是玩家角色(从旧代码中调用):", player_char_id, " - ", player_name)
 		name_label.text = player_name
 		speaker_id = player_char_id
 	elif speaker_id == "narrator" or speaker_id == "system":

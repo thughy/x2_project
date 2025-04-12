@@ -19,15 +19,28 @@ func _ready():
 	
 	print("游戏场景初始化开始")
 	
-	# 强制确保玩家角色已设置（即使没有角色选择过程）
+	# 检查玩家角色设置
 	var player_char = game_state.get_player_character()
 	if player_char == null:
-		print("游戏场景中检测到玩家角色未设置，将使用默认角色")
-		# 设置默认角色以确保游戏能运行
-		game_state.set_player_character("erika")
-		player_char = "erika"
+		push_error("严重错误：玩家角色未设置，游戏应该先显示角色选择界面")
+		# 如果没有选择角色，返回主菜单
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+		return
 	
 	print("游戏场景使用玩家角色:", player_char)
+	
+	# 预检查角色肖像资源
+	print("预检查角色肖像资源...")
+	for character_id in game_state.CHARACTERS:
+		# 检查基本肖像
+		var base_path = "res://assets/characters/" + character_id + ".png"
+		var neutral_path = "res://assets/characters/" + character_id + "_neutral.png"
+		
+		if not ResourceLoader.exists(base_path):
+			print("警告：找不到角色", character_id, "的基本肖像")
+		
+		if not ResourceLoader.exists(neutral_path):
+			print("警告：找不到角色", character_id, "的中性肖像")
 	
 	# Connect signals
 	menu_button.connect("pressed", Callable(self, "_on_menu_button_pressed"))
@@ -40,7 +53,29 @@ func _ready():
 	_force_init_systems()
 	
 	# Start the first dialogue based on player character
-	dialogue_scene_controller.start_dialogue("chapter1_intro")
+	# 尝试加载角色特定的引导对话
+	var character_specific_dialogue = "chapter1_intro_" + player_char
+	
+	# 添加调试信息
+	print("[游戏场景] 玩家角色:", player_char)
+	print("[游戏场景] 尝试加载角色特定对话:", character_specific_dialogue)
+	
+	# 获取对话管理器并列出所有可用的对话 ID
+	var dialogue_manager = get_node("/root/DialogueManager")
+	print("[游戏场景] 所有可用的对话 ID:")
+	for id in dialogue_manager.dialogue_library.keys():
+		print("  - ", id)
+	
+	# 检查是否存在角色特定的对话
+	if dialogue_manager.dialogue_library.has(character_specific_dialogue):
+		print("[游戏场景] 找到角色特定对话，使用:", character_specific_dialogue)
+		var success = dialogue_scene_controller.start_dialogue(character_specific_dialogue)
+		if not success:
+			print("[游戏场景] 启动角色特定对话失败，尝试使用默认对话")
+			dialogue_scene_controller.start_dialogue("chapter1_intro")
+	else:
+		print("[游戏场景] 未找到角色特定对话，使用默认对话: chapter1_intro")
+		dialogue_scene_controller.start_dialogue("chapter1_intro")
 	
 	# Update environment display
 	update_environment_display()

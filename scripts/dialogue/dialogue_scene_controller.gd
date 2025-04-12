@@ -25,39 +25,65 @@ func start_dialogue(dialogue_id):
 	var player_char = game_state.get_player_character()
 	var player_specific_dialogue = dialogue_id + "_" + player_char
 	
-	print("尝试启动对话:", dialogue_id)
-	print("检查是否有特定角色对话:", player_specific_dialogue)
+	print("[对话控制器] 尝试启动对话:", dialogue_id)
+	print("[对话控制器] 玩家角色:", player_char)
+	print("[对话控制器] 检查是否有特定角色对话:", player_specific_dialogue)
+	
+	# 列出所有可用的对话 ID
+	print("[对话控制器] 所有可用的对话 ID:")
+	for id in dialogue_manager.dialogue_library.keys():
+		print("  - ", id)
 	
 	# 如果存在特定角色的对话，使用它
 	if dialogue_manager.dialogue_library.has(player_specific_dialogue):
+		print("[对话控制器] 找到特定角色对话，使用:", player_specific_dialogue)
 		dialogue_id = player_specific_dialogue
-		print("找到特定角色对话，使用:", dialogue_id)
+	else:
+		print("[对话控制器] 未找到特定角色对话，使用默认对话:", dialogue_id)
 	
 	current_dialogue_id = dialogue_id
 	
-	if dialogue_manager.start_dialogue(dialogue_id):
+	# 尝试启动对话
+	var success = dialogue_manager.start_dialogue(dialogue_id)
+	if success:
+		print("[对话控制器] 对话成功启动:", dialogue_id)
 		update_dialogue_ui()
-		print("对话成功启动:", dialogue_id)
 		return true
-	
-	print("对话启动失败:", dialogue_id)
-	return false
+	else:
+		print("[对话控制器] 对话启动失败:", dialogue_id)
+		return false
 
 func update_dialogue_ui():
 	# Get current dialogue info
 	var speaker = dialogue_manager.get_current_speaker()
 	
 	# Debug output
-	print("当前对话说话者:", speaker)
-	print("当前玩家角色:", game_state.get_player_character())
+	print("[对话控制器] 当前对话 ID:", current_dialogue_id)
+	print("[对话控制器] 当前对话说话者:", speaker)
+	print("[对话控制器] 当前玩家角色:", game_state.get_player_character())
+	
+	# 获取当前对话节点的详细信息
+	var current_node = dialogue_manager.get_current_node()
+	if current_node:
+		print("[对话控制器] 当前对话节点:")
+		for key in current_node.keys():
+			print("  - ", key, ": ", current_node[key])
 	
 	# Special handling for player character
 	if speaker == "player":
-		speaker = "player"  # Keep as "player" to let the UI handle it
-		print("当前说话者是玩家")
+		# 保留"player"标识符，让UI处理它
+		# 这样可以避免在角色特定对话中出现问题
+		print("[对话控制器] 当前说话者是玩家角色，保留player标识符")
 	
 	var text = dialogue_manager.get_current_text()
 	var choices = dialogue_manager.get_current_choices()
+	
+	# 打印当前对话文本和选项
+	print("[对话控制器] 当前对话文本: \"", text, "\"")
+	if choices and choices.size() > 0:
+		print("[对话控制器] 当前对话选项:")
+		for i in range(choices.size()):
+			print("  ", i+1, ". ", choices[i]["text"])
 	var node_data = null
 	
 	if dialogue_manager.current_dialogue != null and dialogue_manager.current_node != null:
@@ -99,16 +125,25 @@ func check_scene_transition():
 	# Check if we need to go to a new scene
 	if "goto_lab_scene" in flags and flags["goto_lab_scene"]:
 		print("转换到实验室场景")
+		# 更新环境系统的场景类型
+		environment_system.change_environment(environment_system.SceneType.PRIVATE)
+		print("环境系统已更新为实验室场景")
 		start_dialogue("chapter1_lab_scene")
 		return true
 	
 	if "goto_crisis_scene" in flags and flags["goto_crisis_scene"]:
 		print("转换到危机场景")
+		# 更新环境系统的场景类型
+		environment_system.change_environment(environment_system.SceneType.CRISIS)
+		print("环境系统已更新为危机场景")
 		start_dialogue("chapter1_crisis_scene")
 		return true
 	
 	if "goto_resolution_scene" in flags and flags["goto_resolution_scene"]:
 		print("转换到结局场景")
+		# 更新环境系统的场景类型
+		environment_system.change_environment(environment_system.SceneType.BOUNDARY)
+		print("环境系统已更新为结局场景")
 		start_dialogue("chapter1_resolution")
 		return true
 	

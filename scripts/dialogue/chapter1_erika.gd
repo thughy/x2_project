@@ -8,13 +8,15 @@ func create_intro_dialogue():
 		"start_node": "intro_01",
 		"nodes": {
 			"intro_01": {
-				"speaker": "narrator",
-				"text": "2035年，隔离研究设施内。作为X² PROJECT的主要研究员，艾丽卡博士正在监控一项前沿实验。",
+				"speaker": "erika",
+				"text": "我在X² PROJECT的研究设施内工作多年，今天我正在监控一项前沿实验。",
+				"emotion": "professional",
 				"next": "intro_02"
 			},
 			"intro_02": {
-				"speaker": "narrator",
-				"text": "她的工作站屏幕突然闪烁，系统发出了波动警报。作为团队领导，她立即集合了团队查看情况。",
+				"speaker": "erika",
+				"text": "突然，我的工作站屏幕开始闪烁，系统发出了波动警报。我立即集合了团队查看情况。",
+				"emotion": "curious",
 				"next": "intro_03"
 			},
 			"intro_03": {
