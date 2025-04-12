@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/tools/create_simple_images.gd" id="1_4kkr8"]
+
+[node name="SimpleImageCreator" type="Node"]
+script = ExtResource("1_4kkr8") 

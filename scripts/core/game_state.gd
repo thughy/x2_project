@@ -116,7 +116,14 @@ func start_new_game(character_id):
 
 # Get character portrait path
 func get_character_portrait(character_id, emotion="neutral"):
-	return "res://assets/characters/" + character_id + "_" + emotion + ".png"
+	# First try the emotion-specific portrait with underscore format
+	var path_with_emotion = "res://assets/characters/" + character_id + "_" + emotion + ".png"
+	
+	# If that doesn't exist, try the base character portrait
+	var base_path = "res://assets/characters/" + character_id + ".png"
+	
+	# Return the emotion-specific path first, let the loader handle fallbacks
+	return path_with_emotion
 
 # Get character name display
 func get_character_name(character_id, use_full_name=false):

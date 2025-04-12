@@ -40,4 +40,9 @@ addons/*/bin/
 *.kra
 
 # 日志文件
-*.log 
+*.log
+
+# Godot特定编译产物
+*.uid
+*.import
+__pycache__/

@@ -21,12 +21,26 @@ func _ready():
 	update_dialogue_ui()
 
 func start_dialogue(dialogue_id):
+	# 检查是否有基于玩家角色的特定对话
+	var player_char = game_state.get_player_character()
+	var player_specific_dialogue = dialogue_id + "_" + player_char
+	
+	print("尝试启动对话:", dialogue_id)
+	print("检查是否有特定角色对话:", player_specific_dialogue)
+	
+	# 如果存在特定角色的对话，使用它
+	if dialogue_manager.dialogue_library.has(player_specific_dialogue):
+		dialogue_id = player_specific_dialogue
+		print("找到特定角色对话，使用:", dialogue_id)
+	
 	current_dialogue_id = dialogue_id
 	
 	if dialogue_manager.start_dialogue(dialogue_id):
 		update_dialogue_ui()
+		print("对话成功启动:", dialogue_id)
 		return true
 	
+	print("对话启动失败:", dialogue_id)
 	return false
 
 func update_dialogue_ui():
@@ -80,27 +94,35 @@ func check_scene_transition():
 				if node_id in nodes and "flags" in nodes[node_id]:
 					flags = nodes[node_id]["flags"]
 	
+	print("检查场景转换 - 当前标志:", flags)
+	
 	# Check if we need to go to a new scene
 	if "goto_lab_scene" in flags and flags["goto_lab_scene"]:
+		print("转换到实验室场景")
 		start_dialogue("chapter1_lab_scene")
 		return true
 	
 	if "goto_crisis_scene" in flags and flags["goto_crisis_scene"]:
+		print("转换到危机场景")
 		start_dialogue("chapter1_crisis_scene")
 		return true
 	
 	if "goto_resolution_scene" in flags and flags["goto_resolution_scene"]:
+		print("转换到结局场景")
 		start_dialogue("chapter1_resolution")
 		return true
 	
 	if "return_to_main" in flags and flags["return_to_main"]:
 		# Return to main menu
+		print("返回主菜单")
 		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 		return true
 	
 	return false
 
 func _on_dialogue_advanced():
+	print("对话前进")
+	
 	# Process flags before advancing to check for scene transitions
 	if check_scene_transition():
 		return
@@ -109,12 +131,15 @@ func _on_dialogue_advanced():
 	dialogue_ui.clear_choices()
 	
 	# Advance to the next node
+	print("处理当前对话节点")
 	dialogue_manager.process_current_node()
 	
 	# Update the UI
 	update_dialogue_ui()
 
 func _on_choice_selected(choice_index):
+	print("选择了选项:", choice_index)
+	
 	# Make the choice
 	if dialogue_manager.make_choice(choice_index):
 		# Update the UI

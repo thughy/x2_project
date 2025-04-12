@@ -21,6 +21,82 @@ func _ready():
 	add_dialogue("chapter1_lab_scene", chapter1.create_lab_scene_dialogue())
 	add_dialogue("chapter1_crisis_scene", chapter1.create_crisis_scene_dialogue())
 	add_dialogue("chapter1_resolution", chapter1.create_resolution_dialogue())
+	
+	# 加载角色特定对话
+	load_character_specific_dialogues()
+
+# 加载特定角色的对话文件
+func load_character_specific_dialogues():
+	print("正在加载角色特定对话文件...")
+	
+	# 定义所有角色对话脚本
+	var character_dialogues = {
+		"erika": "res://scripts/dialogue/chapter1_erika.gd",
+		"isa": "res://scripts/dialogue/chapter1_isa.gd",
+		"neil": "res://scripts/dialogue/chapter1_neil.gd",
+		"kai": "res://scripts/dialogue/chapter1_kai.gd"
+	}
+	
+	# 记录成功加载的对话脚本
+	var loaded_dialogues = []
+	
+	# 尝试加载所有角色对话
+	for character_id in character_dialogues:
+		var dialogue_path = character_dialogues[character_id]
+		print("尝试加载角色对话:", character_id, ", 路径:", dialogue_path)
+		
+		# 使用改进的加载方法
+		var dialogue_script = load_if_exists(dialogue_path)
+		if dialogue_script:
+			var dialogue_instance = dialogue_script.new()
+			var dialogue_id = "chapter1_" + character_id
+			
+			# 确保实例有create_chapter1_dialogue方法
+			if dialogue_instance.has_method("create_chapter1_dialogue"):
+				var dialogue_data = dialogue_instance.create_chapter1_dialogue()
+				add_dialogue(dialogue_id, dialogue_data)
+				loaded_dialogues.append(character_id)
+				print("成功加载", character_id, "视角对话")
+			else:
+				print("错误:", character_id, "对话脚本缺少create_chapter1_dialogue方法")
+	
+	# 打印加载结果摘要
+	if loaded_dialogues.size() > 0:
+		print("成功加载的对话脚本:", loaded_dialogues)
+	else:
+		print("警告: 没有成功加载任何角色对话脚本")
+
+# 安全加载资源，使用更可靠的方法
+func load_if_exists(path):
+	print("尝试加载资源文件:", path)
+	
+	# 首先使用ResourceLoader检查
+	var exists = ResourceLoader.exists(path)
+	if exists:
+		print("资源文件存在，尝试加载:", path)
+		var resource = load(path)
+		if resource:
+			print("成功加载资源文件:", path)
+			return resource
+		else:
+			print("资源加载失败，返回null:", path)
+	else:
+		# 使用FileAccess再次检查
+		var file_path = path.trim_prefix("res://")
+		print("使用FileAccess检查文件:", file_path)
+		
+		if FileAccess.file_exists(file_path):
+			print("文件存在，尝试直接加载:", path)
+			var resource = load(path)
+			if resource:
+				print("成功加载资源文件:", path)
+				return resource
+			else:
+				print("资源加载失败，返回null:", path)
+		else:
+			print("警告: 找不到资源文件 " + path)
+	
+	return null
 
 # Add a dialogue to the library
 func add_dialogue(dialogue_id, dialogue_data):
