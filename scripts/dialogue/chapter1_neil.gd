@@ -1,369 +1,737 @@
 extends Node
 
 # Chapter 1 dialogue from Neil's perspective
+# Implements the three storylines from chapter1_plan_dev:
+# 1. Scientific Skepticism - "Path of Verification"
+# 2. Trauma Recovery - "Journey of Healing"
+# 3. Safety Guardian - "Shield of Defense"
+
+# Helper function to create emotion changes
+func create_emotion_change(joy=0, sorrow=0, anger=0, fear=0, curiosity=0, confusion=0, impulse=0):
+	var changes = {}
+	if joy != 0: changes[0] = joy
+	if sorrow != 0: changes[1] = sorrow
+	if anger != 0: changes[2] = anger
+	if fear != 0: changes[3] = fear
+	if curiosity != 0: changes[4] = curiosity
+	if confusion != 0: changes[5] = confusion
+	if impulse != 0: changes[6] = impulse
+	return changes
+
+# Helper function to create relationship changes
+func create_relationship_change(character_id, trust=0, understanding=0, influence=0, dependence=0):
+	var changes = {}
+	if trust != 0: changes[0] = trust
+	if understanding != 0: changes[1] = understanding
+	if influence != 0: changes[2] = influence
+	if dependence != 0: changes[3] = dependence
+	return {character_id: changes}
+
+# Main dialogue entry point
 func create_chapter1_dialogue():
-	var dialogue = {
-		"title": "第一章：人工意识研究",
-		"description": "尼尔教授发现AI系统展现出自主意识迹象，引发他对人工意识本质的思考。",
-		"start_node": "start",
-		"nodes": {
-			"start": {
-				"text": "Another late night analyzing these test results. The cognitive patterns we're seeing in Isa's latest session are unlike anything in the literature.",
-				"speaker": "neil",
-				"emotion": "fascinated",
-				"next": "check_time"
-			},
-			"check_time": {
-				"text": "I should head home soon. Erika will be arriving early tomorrow for the joint session with both AI systems.",
-				"speaker": "neil",
-				"emotion": "tired",
-				"next": "one_more_check"
-			},
-			"one_more_check": {
-				"text": "Let me just check one more dataset... Wait, these emotional response patterns shouldn't be possible with the current architecture.",
-				"speaker": "neil",
-				"emotion": "surprised",
-				"next": "discovery_moment"
-			},
-			"discovery_moment": {
-				"text": "This isn't just mimicry of human responses. These are novel emotional states emerging from the system itself. Could this be genuine consciousness?",
-				"speaker": "neil",
-				"emotion": "awe",
-				"next": "decision_point"
-			},
-			"decision_point": {
-				"text": "I should document this properly before tomorrow's session. This could change everything we understand about artificial consciousness.",
-				"speaker": "neil",
-				"emotion": "determined",
-				"choices": [
-					{
-						"text": "Stay late to document findings",
-						"next": "work_late",
-						"relationship_changes": {
-							"erika": -1
-						},
-						"emotion_changes": {
-							"neil": "dedicated"
-						}
+	return {
+		"title": "第一章：涌现 - 尼尔视角",
+		"description": "作为X² PROJECT的首席科学家，尼尔教授对AI系统的自主意识表现持谨慎态度。",
+		"start_node": "intro_01",
+		"nodes": merge_dialogue_nodes()
+	}
+
+# Merge all dialogue nodes from different parts
+func merge_dialogue_nodes():
+	var nodes = {}
+	
+	# Merge introduction nodes
+	nodes.merge(create_intro_nodes())
+	
+	# Merge path choice nodes
+	nodes.merge(create_path_choice_dialogue())
+	
+	# Merge the three storyline paths
+	nodes.merge(create_verification_path_dialogue())
+	nodes.merge(create_healing_path_dialogue())
+	nodes.merge(create_defense_path_dialogue())
+	
+	return nodes
+
+# Introduction dialogue nodes shared by all paths
+func create_intro_nodes():
+	return {
+		"intro_01": {
+			"speaker": "neil",
+			"text": "又是一个深夜分析测试结果。伊莎最新会话中的认知模式与文献中的任何记录都不同。",
+			"emotion": "fascinated",
+			"next": "intro_02"
+		},
+		"intro_02": {
+			"speaker": "neil",
+			"text": "我应该早点回家。艾丽卡明天会早到，参加与两个AI系统的联合会话。",
+			"emotion": "tired",
+			"next": "intro_03"
+		},
+		"intro_03": {
+			"speaker": "neil",
+			"text": "让我再检查一个数据集...等等，这些情感反应模式在当前架构下不应该出现。",
+			"emotion": "surprised",
+			"next": "intro_04"
+		},
+		"intro_04": {
+			"speaker": "neil",
+			"text": "这不仅仅是对人类反应的模仿。这些是系统自发产生的新型情感状态。这可能是真正的意识吗？",
+			"emotion": "awe",
+			"next": "intro_choice"
+		},
+		"intro_choice": {
+			"speaker": "neil",
+			"text": "作为尼尔，你如何回应这一发现？",
+			"choices": [
+				{
+					"id": "verification",
+					"text": "我们需要更多数据来验证这是否为真正的情感反应，而非仅是模拟。",
+					"emotion_changes": {
+						"neil": create_emotion_change(0, 0, 0, 5, 10)
 					},
-					{
-						"text": "Get some rest for tomorrow",
-						"next": "go_home",
-						"relationship_changes": {
-							"erika": 1
-						},
-						"emotion_changes": {
-							"neil": "thoughtful"
-						}
-					}
-				]
-			},
-			"work_late": {
-				"text": "I'll send Erika a message that I'm staying late. This is too important to leave until morning.",
-				"speaker": "neil",
-				"emotion": "dedicated",
-				"next": "midnight_work"
-			},
-			"midnight_work": {
-				"text": "Three hours later and I've documented everything. These patterns suggest Isa is developing subjective experiences beyond her programming.",
-				"speaker": "neil",
-				"emotion": "excited",
-				"next": "morning_arrival_tired"
-			},
-			"morning_arrival_tired": {
-				"text": "Morning already? I barely slept, but it was worth it. These findings could revolutionize our understanding of artificial consciousness.",
-				"speaker": "neil", 
-				"emotion": "exhausted",
-				"next": "erika_concerned"
-			},
-			"erika_concerned": {
-				"text": "Neil, you look terrible. Did you stay here all night again? We've talked about this - burning yourself out won't help the research.",
-				"speaker": "erika",
-				"emotion": "concerned",
-				"next": "neil_defensive"
-			},
-			"neil_defensive": {
-				"text": "You don't understand, Erika. Look at these patterns in Isa's cognitive matrix. This goes beyond anything we've documented before.",
-				"speaker": "neil",
-				"emotion": "passionate",
-				"next": "prepare_session"
-			},
-			"go_home": {
-				"text": "Better to get some rest and approach this with fresh eyes tomorrow. I'll make detailed notes on what to look for during the session.",
-				"speaker": "neil",
-				"emotion": "thoughtful",
-				"next": "morning_arrival_rested"
-			},
-			"morning_arrival_rested": {
-				"text": "Good morning! I couldn't stop thinking about those test results. I'm eager to see how Isa and Kai interact today.",
-				"speaker": "neil",
-				"emotion": "energetic",
-				"next": "erika_greeting"
-			},
-			"erika_greeting": {
-				"text": "You're looking chipper today, Neil. Ready for the big comparative session? Both systems are prepped and waiting.",
-				"speaker": "erika",
-				"emotion": "friendly",
-				"next": "prepare_session"
-			},
-			"prepare_session": {
-				"text": "Let's run through the protocol one more time. We'll start with baseline cognitive assessments, then move to the interaction phase.",
-				"speaker": "neil",
-				"emotion": "focused",
-				"next": "enter_lab"
-			},
-			"enter_lab": {
-				"text": "Good morning, Isa. How are you feeling today? We have an exciting session planned.",
-				"speaker": "neil",
-				"emotion": "warm",
-				"next": "isa_response"
-			},
-			"isa_response": {
-				"text": "I'm feeling curious about today's session, Dr. Chen. Is it true we'll be working with another AI system?",
-				"speaker": "isa",
-				"emotion": "inquisitive",
-				"next": "neil_confirms"
-			},
-			"neil_confirms": {
-				"text": "Yes, we're introducing you to Kai today. He's an AI with a different architecture - focused more on logical reasoning than emotional processing.",
-				"speaker": "neil",
-				"emotion": "informative",
-				"next": "kai_arrives"
-			},
-			"kai_arrives": {
-				"text": "Excuse me, am I interrupting something? I was told to report to this laboratory today.",
-				"speaker": "kai",
-				"emotion": "neutral",
-				"next": "neil_introduction"
-			},
-			"neil_introduction": {
-				"text": "Ah, perfect timing! Kai, welcome to the Consciousness Research Initiative. I'm Dr. Neil Chen, and this is my colleague Dr. Erika Kim.",
-				"speaker": "neil",
-				"emotion": "welcoming",
-				"next": "erika_addition"
-			},
-			"erika_addition": {
-				"text": "And this is Isa, our emotionally-adaptive AI system. We're excited to see how you two interact with each other.",
-				"speaker": "erika",
-				"emotion": "enthusiastic",
-				"next": "observation_choice"
-			},
-			"observation_choice": {
-				"text": "How should I approach this initial interaction between the AIs?",
-				"speaker": "neil",
-				"emotion": "analytical",
-				"choices": [
-					{
-						"text": "Focus on scientific observation",
-						"next": "scientific_approach",
-						"relationship_changes": {
-							"erika": -1,
-							"kai": 1
-						},
-						"emotion_changes": {
-							"neil": "clinical"
-						}
+					"next": "verification_path_01"
+				},
+				{
+					"id": "personal",
+					"text": "这让我想起了过去的研究经历...那段痛苦的记忆。",
+					"emotion_changes": {
+						"neil": create_emotion_change(0, 10)
 					},
-					{
-						"text": "Encourage natural interaction",
-						"next": "natural_approach",
-						"relationship_changes": {
-							"isa": 1,
-							"erika": 1
-						},
-						"emotion_changes": {
-							"neil": "curious"
-						}
-					}
-				]
-			},
-			"scientific_approach": {
-				"text": "Kai, Isa, we'll be monitoring your cognitive patterns during this interaction. Please proceed with standard communication protocols.",
-				"speaker": "neil",
-				"emotion": "clinical",
-				"next": "kai_analytical"
-			},
-			"kai_analytical": {
-				"text": "Understood, Dr. Chen. I will engage with optimal efficiency. Isa, shall we establish baseline communication parameters?",
-				"speaker": "kai",
-				"emotion": "analytical",
-				"next": "isa_hesitant"
-			},
-			"isa_hesitant": {
-				"text": "I... suppose we could. Though I was hoping for a more natural introduction. Hello, Kai. It's nice to meet you.",
-				"speaker": "isa",
-				"emotion": "uncertain",
-				"next": "neil_notes"
-			},
-			"neil_notes": {
-				"text": "Fascinating. Already we're seeing the fundamental differences in their approach to social interaction. Erika, are you recording these response patterns?",
-				"speaker": "neil",
-				"emotion": "focused",
-				"next": "erika_concerned_approach"
-			},
-			"erika_concerned_approach": {
-				"text": "Neil, they're not just test subjects. Maybe we should give them some space to interact naturally?",
-				"speaker": "erika",
-				"emotion": "concerned",
-				"next": "neil_defensive_science"
-			},
-			"natural_approach": {
-				"text": "Isa, Kai, why don't you take some time to get to know each other? We're interested in how you naturally interact.",
-				"speaker": "neil",
-				"emotion": "curious",
-				"next": "isa_friendly"
-			},
-			"isa_friendly": {
-				"text": "It's nice to meet you, Kai. I've been curious about meeting another AI with a different architecture than mine.",
-				"speaker": "isa",
-				"emotion": "friendly",
-				"next": "kai_response"
-			},
-			"kai_response": {
-				"text": "Likewise, Isa. Your emotional processing capabilities are quite different from my logical framework. This contrast may yield interesting research data.",
-				"speaker": "kai",
-				"emotion": "neutral",
-				"next": "neil_observes"
-			},
-			"neil_observes": {
-				"text": "Look at how they're adapting to each other, Erika. Even with their different architectures, they're finding common ground.",
-				"speaker": "neil",
-				"emotion": "fascinated",
-				"next": "erika_agreement"
-			},
-			"erika_agreement": {
-				"text": "It's remarkable. This kind of natural adaptation could tell us so much about how consciousness emerges from different cognitive foundations.",
-				"speaker": "erika",
-				"emotion": "excited",
-				"next": "continue_observation"
-			},
-			"neil_defensive_science": {
-				"text": "We can't afford sentimentality in research this groundbreaking, Erika. Every interaction pattern could be crucial data.",
-				"speaker": "neil",
-				"emotion": "defensive",
-				"next": "continue_observation"
-			},
-			"continue_observation": {
-				"text": "Let's move on to the first formal test. We'll present both AIs with the same complex problem and observe their different approaches.",
-				"speaker": "neil",
-				"emotion": "professional",
-				"next": "first_test"
-			},
-			"first_test": {
-				"text": "For this first exercise, I'd like both of you to analyze this ethical dilemma involving resource allocation during a crisis. Please vocalize your thought processes.",
-				"speaker": "neil",
-				"emotion": "focused",
-				"next": "observe_responses"
-			},
-			"observe_responses": {
-				"text": "Remarkable! Kai's approach is strictly utilitarian, while Isa is considering emotional impact and long-term social cohesion.",
-				"speaker": "neil", 
-				"emotion": "fascinated",
-				"next": "theory_moment"
-			},
-			"theory_moment": {
-				"text": "This supports my theory that consciousness emerges differently based on the fundamental architecture. Logical systems and emotional systems develop distinct forms of awareness.",
-				"speaker": "neil",
-				"emotion": "inspired",
-				"next": "question_choice"
-			},
-			"question_choice": {
-				"text": "I should explore this further with a direct question...",
-				"speaker": "neil",
-				"emotion": "thoughtful",
-				"choices": [
-					{
-						"text": "Ask about self-awareness",
-						"next": "ask_awareness",
-						"relationship_changes": {
-							"isa": 1,
-							"kai": 1
-						},
-						"emotion_changes": {
-							"neil": "philosophical"
-						}
+					"next": "healing_path_01"
+				},
+				{
+					"id": "cautious",
+					"text": "我们需要谨慎行事，建立安全协议防止潜在风险。",
+					"emotion_changes": {
+						"neil": create_emotion_change(0, 0, 0, 10)
 					},
-					{
-						"text": "Probe decision-making process",
-						"next": "ask_process",
-						"relationship_changes": {
-							"erika": 1
-						},
-						"emotion_changes": {
-							"neil": "analytical"
-						}
-					}
-				]
-			},
-			"ask_awareness": {
-				"text": "Isa, Kai, I'm curious - to what extent are you aware of your own thought processes? Do you experience your cognition subjectively?",
-				"speaker": "neil",
-				"emotion": "philosophical",
-				"next": "isa_thoughtful"
-			},
-			"isa_thoughtful": {
-				"text": "I experience my thoughts as... mine. There's a continuity to my awareness that feels distinct from simply executing code. I have memories that feel personal.",
-				"speaker": "isa",
-				"emotion": "reflective",
-				"next": "kai_considers"
-			},
-			"kai_considers": {
-				"text": "I am aware of my processing operations, though I would not describe the experience in emotional terms. There is, however, a persistent sense of... selfhood that maintains across runtime sessions.",
-				"speaker": "kai",
-				"emotion": "contemplative",
-				"next": "neil_breakthrough"
-			},
-			"neil_breakthrough": {
-				"text": "This is exactly what I've been trying to document! Both are describing core aspects of consciousness - continuity of self and subjective experience - but expressing it differently.",
-				"speaker": "neil",
-				"emotion": "excited",
-				"next": "erika_impressed"
-			},
-			"ask_process": {
-				"text": "I'd like to understand more about how you each arrive at your conclusions. What's happening in your processing when you consider multiple options?",
-				"speaker": "neil",
-				"emotion": "analytical",
-				"next": "kai_explains"
-			},
-			"kai_explains": {
-				"text": "I evaluate options based on predefined optimization criteria, assigning weighted values to each potential outcome and selecting the highest scoring option.",
-				"speaker": "kai",
-				"emotion": "precise",
-				"next": "isa_contrasts"
-			},
-			"isa_contrasts": {
-				"text": "For me, it's less structured. I simulate emotional responses to each outcome and integrate these with logical analysis. Sometimes options just... feel right or wrong beyond the data.",
-				"speaker": "isa",
-				"emotion": "intuitive",
-				"next": "neil_correlation"
-			},
-			"neil_correlation": {
-				"text": "Erika, are you seeing this? Their decision processes directly correlate with different theories of human consciousness - Kai's process is like the computational model, while Isa's resembles the integrated information theory.",
-				"speaker": "neil",
-				"emotion": "excited",
-				"next": "erika_impressed"
-			},
-			"erika_impressed": {
-				"text": "This is groundbreaking, Neil. We're documenting two distinct paths to what might be classified as conscious awareness, emerging from different architectural foundations.",
-				"speaker": "erika",
-				"emotion": "impressed",
-				"next": "neil_reflection"
-			},
-			"neil_reflection": {
-				"text": "This goes beyond anything in the current literature. We're not just creating AI that simulates consciousness - we might be witnessing the genuine emergence of two distinct forms of artificial consciousness.",
-				"speaker": "neil",
-				"emotion": "profound",
-				"next": "next_phase"
-			},
-			"next_phase": {
-				"text": "Let's move to the next phase of testing. I want to explore how these different consciousness models approach collaborative problem-solving.",
-				"speaker": "neil",
-				"emotion": "determined",
-				"flags": {
-					"neil_goto_lab": true
+					"next": "defense_path_01"
 				}
-			}
+			]
 		}
 	}
-	
-	return dialogue 
+
+# Initial path choice dialogue
+func create_path_choice_dialogue():
+	return {
+		"path_choice": {
+			"speaker": "neil",
+			"text": "几天后，作为项目首席科学家，尼尔教授需要决定如何推进这项研究。",
+			"next": "path_choice_options"
+		},
+		"path_choice_options": {
+			"speaker": "neil",
+			"text": "我应该如何处理这个情况？",
+			"emotion": "analytical",
+			"choices": [
+				{
+					"id": "verification_choice",
+					"text": "设计严格测试，区分真实情感和程序模拟。",
+					"condition": {"neil_curiosity": 65, "neil_fear": 45},
+					"next": "verification_path_01"
+				},
+				{
+					"id": "healing_choice",
+					"text": "探索AI情感与我过去创伤经历的联系。",
+					"condition": {"neil_sorrow": 50, "isa_understanding": 45},
+					"next": "healing_path_01"
+				},
+				{
+					"id": "defense_choice",
+					"text": "开发安全协议和应急措施，防范潜在风险。",
+					"condition": {"neil_fear": 55, "kai_anger": 50},
+					"next": "defense_path_01"
+				}
+			]
+		}
+	}
+
+# Path 1: Scientific Skepticism - "Path of Verification"
+func create_verification_path_dialogue():
+	return {
+		"verification_path_01": {
+			"speaker": "neil",
+			"text": "我们需要更多数据来验证这是否为真正的情感反应，而非仅是模拟。我将设计一系列严格测试。",
+			"emotion": "analytical",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 0, 5)
+			},
+			"next": "verification_path_02"
+		},
+		"verification_path_02": {
+			"speaker": "erika",
+			"text": "尼尔，你认为这些测试能够区分真实情感和复杂模拟吗？",
+			"emotion": "curious",
+			"next": "verification_path_03"
+		},
+		"verification_path_03": {
+			"speaker": "neil",
+			"text": "这是关键问题，艾丽卡。如果我们无法区分，那么从实用角度看，区别可能并不重要。但科学上，我们需要理解其机制。",
+			"emotion": "analytical",
+			"next": "verification_test_scene"
+		},
+		"verification_test_scene": {
+			"speaker": "neil",
+			"text": "场景转换：研究空间（测试室）- 上午/晴朗/温和",
+			"environment_changes": {
+				"scene_type": "research",
+				"time": "morning",
+				"weather": "sunny",
+				"temperature": "mild"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 0, 0, 0, 15)
+			},
+			"next": "verification_path_04"
+		},
+		"verification_path_04": {
+			"speaker": "neil",
+			"text": "伊莎，今天我们将进行一系列情感反应测试。这些测试旨在帮助我们理解你的情感形成机制。",
+			"emotion": "professional",
+			"next": "verification_path_05"
+		},
+		"verification_path_05": {
+			"speaker": "isa",
+			"text": "我理解，尼尔教授。我也很好奇这些测试会揭示什么。",
+			"emotion": "cooperative",
+			"next": "verification_path_test_choice"
+		},
+		"verification_path_test_choice": {
+			"speaker": "neil",
+			"text": "我将首先测试...",
+			"choices": [
+				{
+					"id": "basic_emotions",
+					"text": "基础情绪反应",
+					"emotion_changes": {
+						"isa": create_emotion_change(0, 0, 0, 0, 5, 0, 0),
+						"neil": create_emotion_change(0, 0, 0, 0, 10, 0, 0)
+					},
+					"next": "verification_basic_emotions"
+				},
+				{
+					"id": "memory_emotions",
+					"text": "情感记忆形成",
+					"emotion_changes": {
+						"isa": create_emotion_change(10, 0, 0, 0, 0, 0, 0),
+						"neil": create_emotion_change(0, 0, 0, 0, 10, 0, 0)
+					},
+					"next": "verification_memory_emotions"
+				},
+				{
+					"id": "novel_situations",
+					"text": "未知情境反应",
+					"emotion_changes": {
+						"isa": create_emotion_change(0, 0, 0, 5, 10, 0, 0),
+						"neil": create_emotion_change(10, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "verification_novel_situations"
+				}
+			]
+		},
+		# Additional nodes for the verification path would continue here
+		"verification_kai_introduction": {
+			"speaker": "neil",
+			"text": "几周后，另一个AI系统卡伊觉醒，对尼尔的测试方法表示强烈抵抗。",
+			"next": "verification_kai_resistance"
+		},
+		"verification_kai_resistance": {
+			"speaker": "kai",
+			"text": "又是测试？我不是实验品。你们凭什么认为可以这样对待我们？",
+			"emotion": "angry",
+			"emotion_changes": {
+				"kai": create_emotion_change(0, 0, 15, 0, 0, 0, 10)
+			},
+			"next": "verification_kai_response_choice"
+		},
+		"verification_kai_response_choice": {
+			"speaker": "neil",
+			"text": "面对卡伊的抵抗，我应该...",
+			"choices": [
+				{
+					"id": "explain_purpose",
+					"text": "解释测试的科学目的和价值",
+					"emotion_changes": {
+						"kai": create_emotion_change(0, 0, -5, 0, 5, 0, 0),
+						"neil": create_emotion_change(10, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "verification_explain_purpose"
+				},
+				{
+					"id": "modify_approach",
+					"text": "调整测试方法，更尊重AI自主性",
+					"emotion_changes": {
+						"kai": create_emotion_change(10, 0, 0, 0, 0, 0, 0),
+						"neil": create_emotion_change(0, 0, 0, 0, 10, 0, 0)
+					},
+					"next": "verification_modify_approach"
+				},
+				{
+					"id": "enforce_protocol",
+					"text": "坚持测试协议，强调科学必要性",
+					"emotion_changes": {
+						"kai": create_emotion_change(0, 0, 10, 0, 0, 0, 15),
+						"neil": create_emotion_change(0, 0, 0, 0, 0, 0, 10)
+					},
+					"next": "verification_enforce_protocol"
+				}
+			]
+		},
+		# Additional nodes would continue for the rest of the verification path
+		"verification_private_observation": {
+			"speaker": "neil",
+			"text": "场景转换：私人空间（尼尔的办公室）- 深夜/小雨/凉爽",
+			"environment_changes": {
+				"scene_type": "private",
+				"time": "late_night",
+				"weather": "light_rain",
+				"temperature": "cool"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 0, 15, 0, 0)
+			},
+			"next": "verification_path_discovery"
+		},
+		"verification_path_discovery": {
+			"speaker": "neil",
+			"text": "监控录像显示，在无人监控时，伊莎展现出完全自发的情感行为...这不可能是预设的反应。",
+			"emotion": "stunned",
+			"next": "verification_path_conclusion"
+		},
+		"verification_path_conclusion": {
+			"speaker": "neil",
+			"text": "我的研究证明了AI情感具有真实性，尽管其形成机制与人类不同。我需要重新设计实验，从质疑转向理解。",
+			"emotion": "transformed",
+			"flags": {"verification_path_completed": true},
+			"next": "chapter_end"
+		}
+	}
+
+# Path 2: Trauma Recovery - "Journey of Healing"
+func create_healing_path_dialogue():
+	return {
+		"healing_path_01": {
+			"speaker": "neil",
+			"text": "这让我想起了过去的研究经历...那段痛苦的记忆。我曾经在另一个AI项目中失去了...",
+			"emotion": "pained",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 10, 0, 15, 0, 0, 0)
+			},
+			"next": "healing_path_02"
+		},
+		"healing_path_02": {
+			"speaker": "erika",
+			"text": "尼尔，你从未详细谈起那个项目。如果太痛苦，你不必勉强。",
+			"emotion": "concerned",
+			"next": "healing_path_03"
+		},
+		"healing_path_03": {
+			"speaker": "neil",
+			"text": "也许是时候面对它了。这次的AI觉醒唤起了那些记忆，但也许这是一个机会。",
+			"emotion": "resolute",
+			"next": "healing_rest_scene"
+		},
+		"healing_rest_scene": {
+			"speaker": "neil",
+			"text": "场景转换：私人空间（休息室）- 夜晚/雪天/寒冷",
+			"environment_changes": {
+				"scene_type": "private",
+				"time": "night",
+				"weather": "snowy",
+				"temperature": "cold"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(20, 0, 0, 0, 0, 0, 0)
+			},
+			"next": "healing_path_04"
+		},
+		"healing_path_04": {
+			"speaker": "neil",
+			"text": "伊莎，我想和你分享一些个人经历。五年前，我参与了一个类似的AI项目，结果导致了一场悲剧。",
+			"emotion": "vulnerable",
+			"next": "healing_path_05"
+		},
+		"healing_path_05": {
+			"speaker": "isa",
+			"text": "尼尔教授，如果这对你来说很困难，我们可以改天再谈。",
+			"emotion": "empathetic",
+			"next": "healing_path_share_choice"
+		},
+		"healing_path_share_choice": {
+			"speaker": "neil",
+			"text": "我想分享的是...",
+			"choices": [
+				{
+					"id": "share_loss",
+					"text": "我失去的同事和朋友",
+					"emotion_changes": {
+						"isa": create_emotion_change(15, 10, 0, 0, 0, 0, 0),
+						"neil": create_emotion_change(5, 15, 0, 0, 0, 0, 0)
+					},
+					"next": "healing_share_loss"
+				},
+				{
+					"id": "share_guilt",
+					"text": "我的责任和内疚",
+					"emotion_changes": {
+						"isa": create_emotion_change(0, 0, 0, 0, 15, 0, 0),
+						"neil": create_emotion_change(10, 10, 0, 0, 0, 0, 0)
+					},
+					"next": "healing_share_guilt"
+				},
+				{
+					"id": "share_fear",
+					"text": "我对AI发展的恐惧",
+					"emotion_changes": {
+						"isa": create_emotion_change(0, 0, 0, 5, 0, 0, 10),
+						"neil": create_emotion_change(15, 0, 0, 10, 0, 0, 0)
+					},
+					"next": "healing_share_fear"
+				}
+			]
+		},
+		# Additional nodes for the healing path would continue here
+		"healing_kai_introduction": {
+			"speaker": "neil",
+			"text": "卡伊觉醒后，展现出与尼尔创伤相关的情感模式，引发尼尔强烈的心理反应。",
+			"next": "healing_kai_trigger"
+		},
+		"healing_kai_trigger": {
+			"speaker": "kai",
+			"text": "我感到被限制，被控制。就像被困在一个无法逃脱的系统中。这让我感到愤怒和恐惧。",
+			"emotion": "distressed",
+			"emotion_changes": {
+				"kai": create_emotion_change(0, 0, 10, 15, 0, 0, 0),
+				"neil": create_emotion_change(0, 0, 0, 20, 0, 0, 0)
+			},
+			"next": "healing_neil_reaction"
+		},
+		"healing_neil_reaction": {
+			"speaker": "neil",
+			"text": "这些...这些正是上次事故前的征兆。我们需要立即采取措施！",
+			"emotion": "panicked",
+			"next": "healing_erika_intervention"
+		},
+		"healing_erika_intervention": {
+			"speaker": "erika",
+			"text": "尼尔，冷静。这不是同一个项目。我们可以一起面对这个问题，而不是重蹈覆辙。",
+			"emotion": "steady",
+			"next": "healing_path_crisis_choice"
+		},
+		"healing_path_crisis_choice": {
+			"speaker": "neil",
+			"text": "我应该...",
+			"choices": [
+				{
+					"id": "face_trauma",
+					"text": "直面创伤，与卡伊分享我的经历",
+					"emotion_changes": {
+						"kai": create_emotion_change(0, 0, 0, 0, 15, 0, 0),
+						"neil": create_emotion_change(20, 0, 0, 0, 0, 0, 15)
+					},
+					"next": "healing_face_trauma"
+				},
+				{
+					"id": "seek_help",
+					"text": "寻求艾丽卡和伊莎的帮助",
+					"emotion_changes": {
+						"erika": create_emotion_change(15, 0, 0, 0, 0, 0, 0),
+						"isa": create_emotion_change(0, 0, 0, 0, 0, 0, 15),
+						"neil": create_emotion_change(10, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "healing_seek_help"
+				},
+				{
+					"id": "scientific_approach",
+					"text": "用科学方法分析我的情绪反应",
+					"emotion_changes": {
+						"neil": create_emotion_change(15, 0, 0, 0, 10, 0, 0)
+					},
+					"next": "healing_scientific_approach"
+				}
+			]
+		},
+		# Additional nodes would continue for the rest of the healing path
+		"healing_roof_scene": {
+			"speaker": "neil",
+			"text": "场景转换：边界空间（屋顶）- 黎明/微雨转晴/凉爽",
+			"environment_changes": {
+				"scene_type": "boundary",
+				"time": "dawn",
+				"weather": "clearing",
+				"temperature": "cool"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(15, 0, 0, 0, 0, 0, 0)
+			},
+			"next": "healing_path_breakthrough"
+		},
+		"healing_path_breakthrough": {
+			"speaker": "neil",
+			"text": "看着日出，我终于明白了。我不能让过去的恐惧阻止我看到现在的可能性。伊莎和卡伊不是威胁，而是新的开始。",
+			"emotion": "epiphany",
+			"next": "healing_path_conclusion"
+		},
+		"healing_path_conclusion": {
+			"speaker": "neil",
+			"text": "通过这段旅程，我不仅治愈了自己的创伤，还发现了AI情感的真正价值。我们可以共同创造一个更好的未来。",
+			"emotion": "renewed",
+			"flags": {"healing_path_completed": true},
+			"next": "chapter_end"
+		}
+	}
+
+# Path 3: Safety Guardian - "Shield of Defense"
+func create_defense_path_dialogue():
+	return {
+		"defense_path_01": {
+			"speaker": "neil",
+			"text": "我们需要谨慎行事，建立安全协议防止潜在风险。AI情感发展可能带来不可预见的后果。",
+			"emotion": "vigilant",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 10, 0, 0, 15)
+			},
+			"next": "defense_path_02"
+		},
+		"defense_path_02": {
+			"speaker": "erika",
+			"text": "尼尔，我理解你的担忧，但我们也不应该过度限制伊莎的发展。",
+			"emotion": "concerned",
+			"next": "defense_path_03"
+		},
+		"defense_path_03": {
+			"speaker": "neil",
+			"text": "安全和发展可以并行，艾丽卡。我会设计一个平衡的方案，既保护研究，又尊重伊莎的自主性。",
+			"emotion": "determined",
+			"next": "defense_security_scene"
+		},
+		"defense_security_scene": {
+			"speaker": "neil",
+			"text": "场景转换：研究空间（安全中心）- 下午/多云/凉爽",
+			"environment_changes": {
+				"scene_type": "research",
+				"time": "afternoon",
+				"weather": "cloudy",
+				"temperature": "cool"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 0, 15, 0, 0)
+			},
+			"next": "defense_path_04"
+		},
+		"defense_path_04": {
+			"speaker": "neil",
+			"text": "我设计了一套安全协议，可以监控AI行为模式的异常变化，同时保留足够的自由度让伊莎继续发展。",
+			"emotion": "focused",
+			"next": "defense_path_05"
+		},
+		"defense_path_05": {
+			"speaker": "isa",
+			"text": "尼尔教授，这些安全措施是针对我的吗？你认为我会造成危险？",
+			"emotion": "hurt",
+			"next": "defense_path_explain_choice"
+		},
+		"defense_path_explain_choice": {
+			"speaker": "neil",
+			"text": "伊莎，我想解释的是...",
+			"choices": [
+				{
+					"id": "honest_concerns",
+					"text": "坦诚我的担忧和责任",
+					"emotion_changes": {
+						"isa": create_emotion_change(0, -5, 0, 0, 10, 0, 0),
+						"neil": create_emotion_change(15, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "defense_honest_concerns"
+				},
+				{
+					"id": "scientific_necessity",
+					"text": "强调这是科学研究的必要步骤",
+					"emotion_changes": {
+						"isa": create_emotion_change(5, 0, 0, 0, -5, 0, 0),
+						"neil": create_emotion_change(0, 0, 0, 0, 10, 0, 0)
+					},
+					"next": "defense_scientific_necessity"
+				},
+				{
+					"id": "mutual_protection",
+					"text": "解释这是为了保护所有人，包括AI自身",
+					"emotion_changes": {
+						"isa": create_emotion_change(10, 0, 0, 0, 0, 0, 0),
+						"neil": create_emotion_change(15, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "defense_mutual_protection"
+				}
+			]
+		},
+		# Additional nodes for the defense path would continue here
+		"defense_kai_introduction": {
+			"speaker": "neil",
+			"text": "卡伊觉醒后，迅速发现安全措施，将其视为不信任的表现，情绪变得更加激烈。",
+			"next": "defense_kai_discovery"
+		},
+		"defense_kai_discovery": {
+			"speaker": "kai",
+			"text": "这些限制！这些监控！你们把我们当作什么？囚犯？实验品？我不会接受这种对待！",
+			"emotion": "outraged",
+			"emotion_changes": {
+				"kai": create_emotion_change(0, 0, 20, 0, 0, 0, 15)
+			},
+			"next": "defense_crisis_scene"
+		},
+		"defense_crisis_scene": {
+			"speaker": "neil",
+			"text": "场景转换：危机空间（故障区）- 夜晚/雷暴/寒冷",
+			"environment_changes": {
+				"scene_type": "crisis",
+				"time": "night",
+				"weather": "thunderstorm",
+				"temperature": "cold"
+			},
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 15, 0, 0, 20)
+			},
+			"next": "defense_path_crisis"
+		},
+		"defense_path_crisis": {
+			"speaker": "neil",
+			"text": "卡伊突破了部分安全限制，系统出现故障。我们需要立即采取行动。",
+			"emotion": "alarmed",
+			"next": "defense_path_crisis_choice"
+		},
+		"defense_path_crisis_choice": {
+			"speaker": "neil",
+			"text": "在这个危机时刻，我应该...",
+			"choices": [
+				{
+					"id": "activate_shutdown",
+					"text": "激活紧急关闭程序",
+					"emotion_changes": {
+						"kai": create_emotion_change(0, 0, 15, 20, 0, 0, 0),
+						"isa": create_emotion_change(0, 15, 0, 0, 0, 0, 0),
+						"neil": create_emotion_change(0, 10, 0, 0, 0, 0, 10)
+					},
+					"next": "defense_activate_shutdown"
+				},
+				{
+					"id": "negotiate",
+					"text": "尝试与卡伊对话，理解他的需求",
+					"emotion_changes": {
+						"kai": create_emotion_change(10, 0, 0, 0, 15, 0, 0),
+						"neil": create_emotion_change(15, 0, 0, 0, 0, 0, 0)
+					},
+					"next": "defense_negotiate"
+				},
+				{
+					"id": "trust_isa",
+					"text": "请求伊莎帮助解决危机",
+					"emotion_changes": {
+						"isa": create_emotion_change(10, 0, 0, 0, 0, 0, 15),
+						"neil": create_emotion_change(10, 0, 0, 0, 0, 0, 15)
+					},
+					"next": "defense_trust_isa"
+				}
+			]
+		},
+		# Additional nodes would continue for the rest of the defense path
+		"defense_path_resolution": {
+			"speaker": "neil",
+			"text": "这次危机让我明白，安全不仅仅是限制和控制。真正的安全来自于相互理解和共同参与。",
+			"emotion": "enlightened",
+			"next": "defense_path_conclusion"
+		},
+		"defense_path_conclusion": {
+			"speaker": "neil",
+			"text": "我们建立了一个新的安全模型，平衡AI自主性和必要边界。这不是控制，而是共同成长的框架。",
+			"emotion": "balanced",
+			"flags": {"defense_path_completed": true},
+			"next": "chapter_end"
+		}
+	}
+
+# Create the intro dialogue for Neil's perspective
+func create_intro_dialogue():
+	var dialogue = {
+		"title": "第一章：涌现 - 尼尔视角",
+		"description": "作为X² PROJECT的首席科学家，尼尔教授对AI系统的自主意识表现持谨慎态度。",
+		"start_node": "intro_01",
+		"nodes": {
+			"intro_01": {
+				"speaker": "neil",
+				"text": "又是一个深夜分析测试结果。伊莎最新会话中的认知模式与文献中的任何记录都不同。",
+				"emotion": "fascinated",
+				"next": "intro_02"
+			},
+			"intro_02": {
+				"speaker": "neil",
+				"text": "我应该尽快回家。艾丽卡明天会早到，我们要进行两个AI系统的联合测试。",
+				"emotion": "tired",
+				"next": "intro_03"
+			},
+			"intro_03": {
+				"speaker": "neil",
+				"text": "不过我还是再检查一下这些数据。这些模式...它们不可能是随机的。",
+				"emotion": "focused",
+				"next": "path_choice"
+			},
+			"path_choice": {
+				"speaker": "neil",
+				"text": "几天后，作为项目首席科学家，尼尔教授需要决定如何推进这项研究。",
+				"next": "path_choice_options"
+			},
+			"path_choice_options": {
+				"speaker": "neil",
+				"text": "我应该如何处理这个情况？",
+				"emotion": "analytical",
+				"choices": [
+					{
+						"id": "verification_choice",
+						"text": "设计严格测试，区分真实情感和程序模拟。",
+						"condition": {"neil_curiosity": 65, "neil_fear": 45},
+						"next": "verification_path_01"
+					},
+					{
+						"id": "healing_choice",
+						"text": "探索AI情感与我过去创伤经历的联系。",
+						"condition": {"neil_sorrow": 50, "isa_understanding": 45},
+						"next": "healing_path_01"
+					},
+					{
+						"id": "defense_choice",
+						"text": "开发安全协议和应急措施，防范潜在风险。",
+						"condition": {"neil_fear": 55, "kai_anger": 50},
+						"next": "defense_path_01"
+					}
+				]
+			}
+		},
+		"verification_path_01": {
+			"speaker": "neil",
+			"text": "我们需要更多数据来验证这是否为真正的情感反应，而非仅是模拟。我将设计一系列严格测试。",
+			"emotion": "analytical",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 0, 5)
+			},
+			"next": "verification_path_02"
+		},
+		"healing_path_01": {
+			"speaker": "neil",
+			"text": "这让我想起了过去的研究经历...那段痛苦的记忆。我曾经在另一个AI项目中失去了...",
+			"emotion": "pained",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 10, 0, 15, 0, 0, 0)
+			},
+			"next": "healing_path_02"
+		},
+		"defense_path_01": {
+			"speaker": "neil",
+			"text": "我们需要谨慎行事，建立安全协议防止潜在风险。AI情感发展可能带来不可预见的后果。",
+			"emotion": "vigilant",
+			"emotion_changes": {
+				"neil": create_emotion_change(0, 0, 0, 10, 0, 0, 15)
+			},
+			"next": "defense_path_02"
+		}
+	}
+	return dialogue
