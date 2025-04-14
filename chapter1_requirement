@@ -1,0 +1,40 @@
+@chapter1_plan @project_readme  @chapter1_erika.gd 
+
+project_readme是整个项目的一个简要说明。
+chapter1_plan是基于这个项目说明，进行的一个可能方向的游戏设定
+chapter1_erika.gd是一段实现对话的可以跑通的gd script code
+
+你的任务是：
+1 阅读代码库（一次可以多读一些代码），了解代码库的基本情况，包括组织结构，调用关系等
+2 基于1的阅读，你将会了解到我们游戏入口选择游戏时候会选择erika或者neil。那么，请你基于chapter1_plan，进行扩写，扩展出分别以erika和neil的为视角的具体剧情走向。将以erika和neil为主角视角的情景走向写入 chapter1_plan_dev的新文件中
+3 对以erika和neil为主角视角的剧情设计要求：在开始游戏的时候，剧情的走向是一致的，但是玩家视角不同，需要有不同的对话场景和背景音提示。在剧情发展中，设计若干玩家可以选择的分支，每个分支的走向不同，但是最终的结局是一样的。
+4 在erika和neil的剧情设计中，充分利用数值体系和不同场景（请你仔细阅读代码库和project_readme），使得剧情可以在不同的场景内进行。
+5 在你完成 chapter1_plan_dev的新文件剧情开发后，反复review你的剧情设计，一定要满足chapter1_plan中的剧情走势，要求该设计满足上述要求，具有极强的游戏吸引力
+6 充分利用当前代码库中，对话人物切换，背景音切换，场景切换，等核心接口，避免接口使用错误造成的后续debug问题。（请你仔细阅读代码后，明确给出如何切换对话人物，以及切换场景的具体代码，明确于心）
+
+你了解你的任务要求了么？请你深入思考现在的要求，并着手开始开发工作。加油！
+
+
+
+====
+@chapter_plan @chapter1_plan_dev_part1 @chapter1_plan_dev_part2 @chapter1_plan_dev_part3 
+你的chapter1_plane_dev_part1 chapter1_plane_dev_part2 chapter1_plane_dev_part3都已经完整包含了 chapter_plan里面的所有剧情走向了么？
+
+这个part1～3已经都完整描述了erika和neil视角的所有内容了么？场景信息，人物信息，情绪信息等基础属性是否超出了已定义的范畴？
+
+请你确认如下几个问题：
+1 符合要求的完整描述
+2 多视角描述相同剧情
+3 一定的玩家选择，有一定变化的走向，但是相同的结局
+4 不超过定义范围的各种属性。
+
+
+====
+@chapter1_plan_dev_part1 @chapter1_plan_dev_part2 @chapter1_plan_dev_part3
+请你基于上面的剧情设计，在scripts/dialogue/ 目录下，实现erika和neil的对话。
+要求：
+1 充分利用当前代码库中，对话人物切换，背景音切换，场景切换，等核心接口，避免接口使用错误造成的后续debug问题。（请你仔细阅读代码后，明确给出如何切换对话人物，以及切换场景的具体代码，明确于心），最小化开发成本
+2 实现erika和neil的对话的时候，注意每次写入文件不要太大，可以按需分文件，分段写入，从而提高代码的可读性和可维护性。
+3 参考@bug_fixes.md 里面的错误实践，避免已有错误的再次发生。
+4 目前已经有一些对话的开发，scripts/dialogue/erika/* 请你基于这些开发，follow1～4点的要求继续推进开发
+5 开发完毕之后，请你进行代码review和godot的编译测试，确保游戏可运行，运行效果符合预期。
